@@ -32,15 +32,6 @@ const {
     <div class='fixed inset-0 z-0 pointer-events-none opacity-15' aria-hidden='true'>
       <img src='/images/mio/page-bg.png' alt='' class='w-full h-full object-cover' onerror="this.parentElement.style.display='none'" />
     </div>
-    {
-      highlightColor && (
-        <div
-          id='highlight-gradient'
-          class='pointer-events-none absolute start-0 top-0 z-0 h-screen w-full opacity-25'
-          style={`background-image:linear-gradient(${highlightColor},transparent)`}
-        />
-      )
-    }
     <div
       id='main-container'
       class='w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
