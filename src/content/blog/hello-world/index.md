@@ -3,6 +3,7 @@ title: "Hello, World! — Welcome to Ru00y's Lab"
 description: "The first post. A lab notebook is born, powered by bass lines and backpropagation."
 publishDate: 2026-06-09
 tags: ["meta", "intro"]
+comment: true
 ---
 
 Welcome to **Ru00y's Lab** 🎸

@@ -1,0 +1,32 @@
+---
+import { cn } from 'astro-pure/utils'
+
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<div id='giscus-comment' class={cn('not-prose', className)}>
+  <p class='text-muted-foreground text-sm'>Loading comments...</p>
+</div>
+
+<script>
+  const script = document.createElement('script')
+  script.src = 'https://giscus.app/client.js'
+  script.setAttribute('data-repo', 'rua103/rua103.github.io')
+  script.setAttribute('data-repo-id', 'R_kgDOS1gysA')
+  script.setAttribute('data-category', 'General')
+  script.setAttribute('data-category-id', 'DIC_kwDOS1gysM4C-1bh')
+  script.setAttribute('data-mapping', 'pathname')
+  script.setAttribute('data-strict', '0')
+  script.setAttribute('data-reactions-enabled', '1')
+  script.setAttribute('data-emit-metadata', '0')
+  script.setAttribute('data-input-position', 'bottom')
+  script.setAttribute('data-theme', 'preferred_color_scheme')
+  script.setAttribute('data-lang', 'zh-CN')
+  script.setAttribute('crossorigin', 'anonymous')
+  script.async = true
+  document.getElementById('giscus-comment')!.appendChild(script)
+</script>

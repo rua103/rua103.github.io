@@ -65,8 +65,8 @@ export const integ: IntegrationUserConfig = {
     applyTip: [
       { name: 'Name', val: theme.title! },
       { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://rua103.github.io/' },
-      { name: 'Avatar', val: 'https://rua103.github.io/favicon/favicon.ico' }
+      { name: 'Link', val: 'https://ru00ys-lab.com/' },
+      { name: 'Avatar', val: 'https://ru00ys-lab.com/favicon/favicon.ico' }
     ],
     cacheAvatar: false
   },
