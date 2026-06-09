@@ -4,7 +4,7 @@ export const theme: ThemeUserConfig = {
   title: "Ru00y's Lab",
   author: 'Ru00y',
   description: '♪ A VLM researcher & Mio fan — bass-driven, code-powered.',
-  favicon: '/favicon/favicon.ico',
+  favicon: '/favicon/favicon-32x32.png',
   socialCard: '/images/social-card.png',
   locale: {
     lang: 'en-US',
