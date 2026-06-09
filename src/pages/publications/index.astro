@@ -1,0 +1,58 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
+
+const publications = [
+  {
+    title: 'DegEval: Benchmarking and Understanding Visual Degradation in Vision-Language Models',
+    authors: 'Jintao Gu, Guoshun Nan, Kaixiang Pan, Hanying Fu, Danchen Guan, Binzhou Qiu, Yandi Liu, Xuan Liu, Ruihan Niu, Fengling Ma, Hang Du, Xiuqiong Li, Sicong Leng',
+    venue: 'ECCV 2026',
+    url: 'https://openreview.net/forum?id=IVuhnkQQYr',
+    status: 'Under Review'
+  }
+]
+---
+
+<PageLayout meta={{ title: 'Publications' }}>
+  <SidebarLayout>
+    <section class='animate mb-8' id='content-header'>
+      <h1 class='text-3xl font-bold gradient-text'>★ Publications</h1>
+      <p class='text-muted-foreground mt-2'>Research papers and preprints ♪</p>
+    </section>
+
+    <div id='content' class='animate flex flex-col gap-y-6'>
+      {publications.map(pub => (
+        <a
+          href={pub.url}
+          target='_blank'
+          class='not-prose block rounded-2xl border bg-muted px-5 py-4 transition-all hover:border-primary/40 hover:shadow-sm'
+        >
+          <div class='flex items-center gap-2 mb-2'>
+            <span class='inline-block rounded-full bg-primary/12 text-primary text-xs font-semibold px-2.5 py-0.5'>
+              {pub.venue}
+            </span>
+            <span class='text-xs text-muted-foreground'>{pub.status}</span>
+          </div>
+          <h3 class='font-semibold text-foreground leading-snug'>{pub.title}</h3>
+          <p class='text-muted-foreground text-sm mt-2 leading-relaxed'>{pub.authors}</p>
+        </a>
+      ))}
+
+      {publications.length === 0 && (
+        <div class='flex flex-col items-center gap-y-3 py-16 text-muted-foreground'>
+          <span class='text-4xl'>📄</span>
+          <p>No publications yet. Stay tuned~ ♪</p>
+        </div>
+      )}
+    </div>
+  </SidebarLayout>
+</PageLayout>
+
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>

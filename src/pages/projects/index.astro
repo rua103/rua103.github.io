@@ -1,0 +1,80 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
+import Section from '@/components/home/Section.astro'
+
+const projects = [
+  {
+    name: '🔥 Disaster Detection',
+    desc: 'Slope disaster detection system with YOLOv8/YOLOv11, day/night dual-scene, 4 target classes, 2119 annotated images.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/Disaster-detection' }],
+    tags: ['YOLOv11', 'PyTorch', 'Detection']
+  },
+  {
+    name: '🛡️ Smart Security Alarm',
+    desc: 'STM32F103C8T6 alarm with IR, flame & DHT11 sensors. Audio-visual dual alarm, OLED display, startup self-check.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/smart-security-alarm' }],
+    tags: ['STM32', 'Embedded', 'C']
+  },
+  {
+    name: '📝 Structured Noun Caption',
+    desc: 'PyTorch image captioning with Image → Noun List → Caption pipeline. BLEU + noun coverage on Flickr8k/30k.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/StructuredNounCaption' }],
+    tags: ['PyTorch', 'Captioning', 'NLP']
+  },
+  {
+    name: '🧠 Michigan DL for CV',
+    desc: 'UMich EECS 498-007 coursework: KNN, CNN, ResNet, Transformer, VAE, GAN from scratch.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/Umich-pytorch' }],
+    tags: ['Deep Learning', 'CV', 'PyTorch']
+  },
+  {
+    name: '🎨 Computer Graphics 2025',
+    desc: 'USTC CG coursework: 2D/3D algorithms in C++ & OpenGL. Rasterization, path tracing, SPH fluid, character animation.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/25cg' }],
+    tags: ['OpenGL', 'C++', 'Graphics']
+  },
+  {
+    name: '📓 Notebook',
+    desc: 'Personal study notes: calculus, digital circuits, sorting algorithms, coding basics.',
+    links: [{ type: 'github', href: 'https://github.com/rua103/Notebook' }],
+    tags: ['Notes', 'Learning']
+  }
+]
+---
+
+<PageLayout meta={{ title: 'Projects' }}>
+  <SidebarLayout>
+    <section class='animate mb-8' id='content-header'>
+      <h1 class='text-3xl font-bold gradient-text'>🛠️ Projects</h1>
+      <p class='text-muted-foreground mt-2'>Things I've built and broken along the way.</p>
+    </section>
+
+    <div id='content' class='animate flex flex-col gap-y-4'>
+      {projects.map(proj => (
+        <a
+          href={proj.links[0]?.href}
+          target='_blank'
+          class='not-prose block rounded-2xl border bg-muted px-5 py-3.5 transition-all hover:border-primary/40 hover:shadow-sm'
+        >
+          <h3 class='font-medium text-foreground'>{proj.name}</h3>
+          <p class='text-muted-foreground text-sm mt-1'>{proj.desc}</p>
+          <div class='flex flex-wrap gap-2 mt-2'>
+            {proj.tags.map(tag => (
+              <span class='text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5'>{tag}</span>
+            ))}
+          </div>
+        </a>
+      ))}
+    </div>
+  </SidebarLayout>
+</PageLayout>
+
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>

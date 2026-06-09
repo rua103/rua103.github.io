@@ -1,0 +1,95 @@
+/* ══════════════════════════════════════════
+   Ru00y's Lab — Mio Akiyama Theme
+   Bass-driven, otaku-flavored
+   ══════════════════════════════════════════ */
+
+/* ── Light Mode (Mio's Day / 澪の昼) ── */
+:root {
+  --primary: 207 60% 42%;
+  --foreground: 220 30% 15%;
+  --muted-foreground: 215 15% 45%;
+  --background: 210 40% 98%;
+  --muted: 210 25% 93%;
+  --card: 0 0% 100%;
+  --border: 210 20% 85%;
+  --input: 210 20% 90%;
+  --ring: 207 60% 42%;
+  --radius: 0.5rem;
+}
+
+/* ── Dark Mode (Mio's Night / 澪の夜) ── */
+.dark {
+  --primary: 207 65% 55%;
+  --foreground: 210 40% 98%;
+  --muted-foreground: 215 20% 70%;
+  --background: 220 25% 6%;
+  --muted: 220 20% 12%;
+  --card: 220 25% 9%;
+  --border: 220 20% 18%;
+  --input: 220 20% 16%;
+  --ring: 207 65% 55%;
+}
+
+:root {
+  --un-default-border-color: hsl(var(--border) / 1);
+}
+html.dark {
+  color-scheme: dark;
+}
+
+/* ── Global ── */
+a {
+  transition: color 0.2s ease;
+  &:hover {
+    color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  }
+}
+
+/* ── Mio Sparkle Text Glow ── */
+.glow-hover:hover {
+  text-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  transition: text-shadow 0.3s ease;
+}
+
+/* ── Mio Quote Block ── */
+.mio-quote {
+  font-style: italic;
+  border-left: 3px solid hsl(var(--primary) / 0.5);
+  padding-left: 1rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0.5rem 0;
+}
+
+/* ── Section divider with music notes ── */
+.mio-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: hsl(var(--primary) / 0.4);
+  font-size: 0.75rem;
+  margin: 0.5rem 0;
+  user-select: none;
+}
+.mio-divider::before,
+.mio-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, hsl(var(--primary) / 0.2), transparent);
+}
+
+/* ── Sidebar ── */
+.mio-sidebar {
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  position: relative;
+}
+.mio-sidebar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, hsl(var(--background)) 0%, transparent 60%);
+  pointer-events: none;
+}

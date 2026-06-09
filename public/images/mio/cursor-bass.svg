@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Body -->
+  <ellipse cx="16" cy="23" rx="9" ry="7" fill="#E74C3C" stroke="#C0392B" stroke-width="0.8"/>
+  <ellipse cx="8" cy="24" rx="5" ry="4" fill="#C0392B" opacity="0.4"/>
+  <ellipse cx="24" cy="22" rx="4" ry="5" fill="#E74C3C" stroke="#C0392B" stroke-width="0.6"/>
+  <!-- Pickguard -->
+  <ellipse cx="14" cy="25" rx="3" ry="3.5" fill="white" opacity="0.15"/>
+  <!-- Sound hole -->
+  <circle cx="16" cy="21" r="2.2" fill="#1a1a2e" opacity="0.25"/>
+  <!-- Neck -->
+  <rect x="14.5" y="4" width="3" height="17" rx="1" fill="#8B4513"/>
+  <!-- Headstock -->
+  <rect x="11" y="0.5" width="10" height="6" rx="2" fill="#5C2E0A"/>
+  <!-- Tuning pegs 3+3 -->
+  <circle cx="9" cy="3" r="1" fill="#DDD"/>
+  <circle cx="9" cy="5" r="1" fill="#DDD"/>
+  <circle cx="23" cy="3" r="1" fill="#DDD"/>
+  <circle cx="23" cy="5" r="1" fill="#DDD"/>
+  <!-- Bridge -->
+  <rect x="12" y="28" width="8" height="1.5" rx="0.5" fill="#444"/>
+  <!-- Strings -->
+  <line x1="15.5" y1="6" x2="15.5" y2="20" stroke="#EEE" stroke-width="0.4" opacity="0.4"/>
+  <line x1="16.5" y1="6" x2="16.5" y2="20" stroke="#EEE" stroke-width="0.4" opacity="0.4"/>
+</svg>

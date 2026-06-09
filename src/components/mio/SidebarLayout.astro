@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets'
+import config from '@/site-config'
+
+const imagePath = config.logo.src
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
+)
+if (!images[imagePath])
+  throw new Error(`"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`)
+---
+
+<div class='flex gap-0 w-full'>
+  <!-- Sidebar -->
+  <aside
+    class='mio-sidebar hidden lg:flex flex-col items-center gap-y-4 w-60 flex-shrink-0 py-8 px-4 rounded-2xl mr-6'
+    style='background-image: url(/images/mio/sidebar-bg.png);'
+  >
+    <Image
+      src={images[imagePath]()}
+      alt={config.logo.alt || 'Profile'}
+      class='h-28 w-auto rounded-full border-2 p-1 shadow-lg relative z-10'
+      style='border-color: hsl(var(--primary) / 0.6);'
+      loading='eager'
+      fetchpriority='high'
+    />
+    <h2 class='text-lg font-bold gradient-text relative z-10'>Ru00y's Lab</h2>
+
+    <div class='flex flex-col gap-y-2 w-full relative z-10 mt-2'>
+      <a href='/blog' class='btn w-full justify-center text-sm'>♪ Blog</a>
+      <a href='/projects' class='btn w-full justify-center text-sm'>🛠️ Projects</a>
+      <a href='/publications' class='btn w-full justify-center text-sm'>★ Publications</a>
+      <a href='/about' class='btn w-full justify-center text-sm'>✦ About</a>
+      <a href='https://github.com/rua103' target='_blank' class='btn w-full justify-center text-sm'>
+        GitHub
+      </a>
+    </div>
+
+    <div class='mt-auto relative z-10 text-center'>
+      <p class='text-xs text-muted-foreground italic'>"Don't say lazy"</p>
+      <p class='text-xs text-muted-foreground'>— Akiyama Mio ♪</p>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class='flex-1 min-w-0'>
+    <slot />
+  </main>
+</div>
+
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
