@@ -6,9 +6,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 import config from '@/site-config'
 
 const languages = ['Python', 'C', 'C++']
-const ai = ['PyTorch', 'YOLO', 'VLM', 'Transformers']
-const systems = ['Linux', 'Docker', 'Git', 'STM32', 'OpenGL']
-const web = ['JavaScript', 'TypeScript', 'HTML', 'CSS']
+const ai = ['AI', 'MLLM', 'RL', 'Reasoning Model']
 
 const imagePath = config.logo.src
 const images = import.meta.glob<{ default: ImageMetadata }>(
@@ -83,8 +81,6 @@ if (!images[imagePath])
       <Section title='♩ Skills'>
         <SkillLayout title='Languages' skills={languages} />
         <SkillLayout title='AI / ML' skills={ai} />
-        <SkillLayout title='Systems' skills={systems} />
-        <SkillLayout title='Web' skills={web} />
       </Section>
 
       <Section title='✉️ Contact'>
