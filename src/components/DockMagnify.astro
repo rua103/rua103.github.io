@@ -1,6 +1,6 @@
 <script>
-  const MAX_SCALE = 1.04
-  const RADIUS = 200 // px — magnification zone
+  const MAX_SCALE = 1.07
+  const RADIUS = 280 // px — magnification zone
   const ITEMS = '.bg-muted'
 
   function magnify(e: MouseEvent) {
@@ -16,12 +16,12 @@
       if (dist < RADIUS) {
         // macOS-style falloff: closer = bigger
         const t = 1 - dist / RADIUS
-        const scale = 1 + (MAX_SCALE - 1) * (t * t) // quadratic falloff
+        const scale = 1 + (MAX_SCALE - 1) * (t * t * t) // cubic falloff — sharper
         ;(card as HTMLElement).style.transform = `scale(${scale})`
-        ;(card as HTMLElement).style.transition = 'transform 0.15s ease-out'
+        ;(card as HTMLElement).style.transition = 'transform 0.1s ease-out'
       } else {
         ;(card as HTMLElement).style.transform = 'scale(1)'
-        ;(card as HTMLElement).style.transition = 'transform 0.3s ease-out'
+        ;(card as HTMLElement).style.transition = 'transform 0.25s ease-out'
       }
     })
   }
