@@ -6,8 +6,9 @@ import type { CollectionEntry } from 'astro:content'
 import 'katex/dist/katex.min.css'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, Copyright, Hero, TOC } from 'astro-pure/components/pages'
+import { ArticleBottom, Hero, TOC } from 'astro-pure/components/pages'
 import config from 'virtual:config'
+import Copyright from '@/components/Copyright.astro'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import { Comment } from '@/components/giscus'
 

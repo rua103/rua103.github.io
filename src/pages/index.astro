@@ -8,6 +8,7 @@ import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
+import { Comment } from '@/components/giscus'
 import config from '@/site-config'
 
 const languages = ['Python', 'C', 'C++']
@@ -114,25 +115,21 @@ if (!images[imagePath])
         <div class='flex flex-col gap-y-2'>
           <a href='https://github.com/rua103/Disaster-detection' target='_blank'
              class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='text-lg'>🔥</span>
             <span class='font-medium text-foreground'>Disaster Detection</span>
             <span class='text-muted-foreground text-xs'>— YOLO-based slope disaster detector</span>
           </a>
           <a href='https://github.com/rua103/smart-security-alarm' target='_blank'
              class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='text-lg'>🛡️</span>
             <span class='font-medium text-foreground'>Smart Security Alarm</span>
             <span class='text-muted-foreground text-xs'>— STM32 multi-sensor alarm system</span>
           </a>
           <a href='https://github.com/rua103/StructuredNounCaption' target='_blank'
              class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='text-lg'>📝</span>
             <span class='font-medium text-foreground'>Structured Noun Caption</span>
             <span class='text-muted-foreground text-xs'>— Noun-guided image captioning</span>
           </a>
           <a href='https://github.com/rua103/Umich-pytorch' target='_blank'
              class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='text-lg'>🧠</span>
             <span class='font-medium text-foreground'>Michigan DL for CV</span>
             <span class='text-muted-foreground text-xs'>— EECS 498-007 full coursework</span>
           </a>
@@ -143,6 +140,13 @@ if (!images[imagePath])
       <Section title='♩ Skills'>
         <SkillLayout title='Languages' skills={languages} />
         <SkillLayout title='AI / ML' skills={ai} />
+      </Section>
+    </div>
+    <Section title='💬 Guestbook'>
+        <p class='text-muted-foreground text-sm mb-4'>
+          Leave a message ♪ — comments are powered by GitHub Discussions.
+        </p>
+        <Comment />
       </Section>
     </div>
     <Quote class='mt-12' />

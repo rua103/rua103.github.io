@@ -12,7 +12,7 @@ function removeDupsAndLowerCase(array: string[]) {
 // Define blog collection
 const blog = defineCollection({
   // Load Markdown and MDX files in the `src/content/blog/` directory.
-  loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
+  loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}', exclude: '_template/**' }),
   // Required
   schema: ({ image }) =>
     z.object({
