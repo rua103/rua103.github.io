@@ -1,65 +1,35 @@
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-<div id="visitor-map" style="min-height:360px" class="w-full rounded-xl border bg-muted overflow-hidden relative z-0">
+<div id="visitor-map" style="min-height:380px" class="w-full rounded-xl border bg-muted overflow-hidden relative z-0">
   <p id="map-status" class="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm z-10">Loading map...</p>
 </div>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <script is:inline>
   (function() {
-    var s = document.createElement('script')
-    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-    s.onload = init
-    document.head.appendChild(s)
-
-    function init() {
+    var script = document.createElement('script')
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+    script.onload = function() {
       var container = document.getElementById('visitor-map')
       if (!container) return
+      var status = document.getElementById('map-status')
 
       var map = L.map('visitor-map', {
-        center: [15, 0], zoom: 2,
+        center: [20, 0], zoom: 2,
         minZoom: 2, maxZoom: 2,
         scrollWheelZoom: false,
         doubleClickZoom: false,
         touchZoom: false,
-        boxZoom: false,
-        keyboard: false,
         dragging: false,
+        keyboard: false,
         zoomControl: false,
         attributionControl: false,
       })
 
-      // World outline as a simple GeoJSON layer (simplified continents)
-      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json')
-        .then(function(r) { return r.json() })
-        .then(function(topo) {
-          // Convert TopoJSON to GeoJSON
-          var geo = topojson.feature(topo, topo.objects.land)
-          L.geoJSON(geo, {
-            style: { fill: '#dbe0e6', stroke: '#c4cad3', weight: 0.6, opacity: 1, fillOpacity: 1 },
-          }).addTo(map)
-          loadDots(map)
-        })
-        .catch(function() {
-          // Fallback: use simple rectangle outlines as continents
-          var fallback = L.geoJSON({
-            type: 'FeatureCollection',
-            features: [
-              // Simplified continents as rough rectangles
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[-125,52],[-65,52],[-65,24],[-90,15],[-125,24],[-125,52]]] } }, // N.America
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[-80,10],[-35,10],[-35,-55],[-75,-55],[-80,10]]] } }, // S.America
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[-10,60],[42,60],[42,36],[-10,36],[-10,60]]] } }, // Europe
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[-17,37],[52,37],[52,-35],[-17,-35],[-17,37]]] } }, // Africa
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[60,73],[170,73],[170,-10],[95,-10],[95,20],[68,10],[60,30],[60,73]]] } }, // Asia
-              { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[113,-10],[155,-10],[155,-39],[113,-39],[113,-10]]] } }, // Australia
-            ]
-          }, { style: { fill: '#dbe0e6', stroke: '#c4cad3', weight: 0.6, opacity: 1, fillOpacity: 1 } }).addTo(map)
-          loadDots(map)
-        })
-    }
+      // Clean world map tiles — CartoDB Voyager (no key needed, fast CDN)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+        maxZoom: 2,
+      }).addTo(map)
 
-    function loadDots(map) {
-      var status = document.getElementById('map-status')
       fetch('https://api.ru00ys-lab.com/data')
         .then(function(r) { return r.json() })
         .then(function(visitors) {
@@ -69,46 +39,28 @@
           var groups = {}
           visitors.forEach(function(v) {
             if (!v.lat) return
-            var k = Math.round(v.lat*2)/2 + ',' + Math.round(v.lon*2)/2
+            var k = Math.round(v.lat * 2) / 2 + ',' + Math.round(v.lon * 2) / 2
             if (groups[k]) { groups[k].count++ }
             else { groups[k] = { lat: v.lat, lon: v.lon, city: v.city, region: v.region, country: v.country, count: 1 } }
           })
 
           Object.values(groups).forEach(function(v) {
-            var r = Math.min(4 + v.count, 12)
+            var r = Math.min(5 + v.count * 1.5, 14)
             var label = [v.city, v.region, v.country].filter(Boolean).join(', ')
             L.circleMarker([v.lat, v.lon], {
-              radius: r, fillColor: 'hsl(207,65%,48%)', color: 'hsl(207,65%,48%)',
-              weight: 1, opacity: 0.55, fillOpacity: 0.45,
-            }).bindTooltip(label + ' (' + v.count + ')', { direction: 'top' }).addTo(map)
+              radius: r,
+              fillColor: 'hsl(207, 65%, 48%)',
+              color: '#fff',
+              weight: 1,
+              opacity: 0.9,
+              fillOpacity: 0.7,
+            })
+              .bindTooltip(label + ' (' + v.count + ')', { direction: 'top', offset: [0, -r] })
+              .addTo(map)
           })
         })
         .catch(function() { status.textContent = 'Map not available.' })
     }
+    document.head.appendChild(script)
   })()
-</script>
-
-<!-- topojson-client CDN (tiny, for world-atlas conversion) -->
-<script is:inline>
-  // Minimal topojson.feature — only what we need
-  window.topojson = window.topojson || {}
-  window.topojson.feature = function(topology, object) {
-    function transform(arcs, transform) {
-      var points = []
-      arcs.forEach(function(arc) {
-        if (arc < 0) arc = ~arc
-        var x = 0, y = 0
-        topology.arcs[arc].forEach(function(pt) {
-          x += pt[0]; y += pt[1]
-          points.push(transform ? [x*transform.scale[0]+transform.translate[0], y*transform.scale[1]+transform.translate[1]] : [x, y])
-        })
-      })
-      return points
-    }
-    var t = object.type === 'GeometryCollection' ? { type: 'FeatureCollection', features: object.geometries.map(function(g) { return topojson.feature(topology, g) }) } : null
-    if (t) return t
-    if (object.type === 'MultiPolygon') return { type: 'Feature', geometry: { type: 'MultiPolygon', coordinates: object.arcs.map(function(a) { return [transform(a, topology.transform)] }) } }
-    if (object.type === 'Polygon') return { type: 'Feature', geometry: { type: 'Polygon', coordinates: object.arcs.map(function(a) { return transform(a, topology.transform) }) } }
-    return null
-  }
 </script>
