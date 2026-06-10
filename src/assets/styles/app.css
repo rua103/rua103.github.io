@@ -62,8 +62,8 @@ a {
 
 /* ── macOS-style frosted glass ── */
 .bg-muted {
-  --un-bg-opacity: 0.35;
-  background-color: hsl(var(--muted) / 0.35) !important;
+  --un-bg-opacity: 0.55;
+  background-color: hsl(var(--muted) / 0.55) !important;
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border: 1px solid hsl(var(--border) / 0.18);
