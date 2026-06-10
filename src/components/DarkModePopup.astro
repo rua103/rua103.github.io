@@ -30,6 +30,16 @@
 <script>
   const KEY = 'dark-popup-dismissed'
 
+  function getCookie(name: string) {
+    const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
+    return match ? match[1] : null
+  }
+
+  function setSessionCookie(name: string, value: string) {
+    // No expiry = session cookie, vanishes when browser closes
+    document.cookie = `${name}=${value}; path=/; SameSite=Lax`
+  }
+
   function showPopup() {
     const overlay = document.getElementById('dark-popup-overlay') as HTMLElement
     if (!overlay) return
@@ -45,33 +55,32 @@
   }
 
   // Check if we should show
-  const dismissed = sessionStorage.getItem(KEY)
-  const theme = sessionStorage.getItem('theme') || 'system'
+  const dismissed = getCookie(KEY)
+  const theme = localStorage.getItem('theme') || 'system'
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   if (!dismissed && !isDark) {
-    // Delay so page renders first
     setTimeout(showPopup, 800)
   }
 
   // Yes -> switch to dark
   document.getElementById('dark-popup-yes')?.addEventListener('click', () => {
-    sessionStorage.setItem('theme', 'dark')
+    localStorage.setItem('theme', 'dark')
     document.documentElement.classList.add('dark')
-    sessionStorage.setItem(KEY, '1')
+    setSessionCookie(KEY, '1')
     hidePopup()
   })
 
   // No -> dismiss
   document.getElementById('dark-popup-no')?.addEventListener('click', () => {
-    sessionStorage.setItem(KEY, '1')
+    setSessionCookie(KEY, '1')
     hidePopup()
   })
 
   // Click overlay to dismiss
   document.getElementById('dark-popup-overlay')?.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).id === 'dark-popup-overlay') {
-      sessionStorage.setItem(KEY, '1')
+      setSessionCookie(KEY, '1')
       hidePopup()
     }
   })
