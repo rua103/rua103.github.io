@@ -1,28 +1,20 @@
 /**
  * Visitor Map Worker — ru00ys-lab.com
  * Deploy to Cloudflare Workers at: api.ru00ys-lab.com
+ *
+ * GET /track  — record visitor (skip if owner cookie present)
+ * GET /data   — return deduplicated GeoJSON
+ * GET /owner  — set owner cookie (requires secret key in URL)
+ * GET /me     — check if logged in
  */
 
 function cookieHeader(value, maxAge = 31536000) {
-  const name = 'ru00y-owner'
-  return `${name}=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`
-}
-
-async function hmacSign(data, secret) {
-  const enc = new TextEncoder()
-  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
-  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data))
-  return btoa(Array.from(new Uint8Array(sig)).map(b => String.fromCharCode(b)).join(''))
-}
-
-async function verify(data, sig, secret) {
-  return sig === await hmacSign(data, secret)
+  return `ru00y-owner=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`
 }
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
-    const secret = env.COOKIE_SECRET || 'fallback-secret'
     const cors = {
       'Access-Control-Allow-Origin': 'https://ru00ys-lab.com',
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -30,81 +22,30 @@ export default {
     }
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors })
 
-    // /login — redirect to GitHub
-    if (url.pathname === '/login') {
-      const state = crypto.randomUUID()
-      const params = new URLSearchParams({
-        client_id: env.GITHUB_CLIENT_ID || '',
-        redirect_uri: 'https://api.ru00ys-lab.com/callback',
-        state,
-        scope: 'read:user',
-      })
-      const res = Response.redirect('https://github.com/login/oauth/authorize?' + params.toString(), 302)
-      res.headers.set('Set-Cookie', cookieHeader('state:' + state, 600))
+    // /owner?key=xxx — set owner cookie
+    if (url.pathname === '/owner') {
+      const key = url.searchParams.get('key') || ''
+      const expected = env.OWNER_KEY || 'ru00y-my-secret-key'
+      if (key !== expected) {
+        return new Response('Wrong key', { status: 403, headers: cors })
+      }
+      const res = new Response('You are now the owner. Your visits will not be tracked.', { headers: cors })
+      res.headers.set('Set-Cookie', cookieHeader('1'))
       return res
     }
 
-    // /callback — handle GitHub OAuth
-    if (url.pathname === '/callback') {
-      const code = url.searchParams.get('code')
-      const state = url.searchParams.get('state')
-      const cookieStr = request.headers.get('Cookie') || ''
-
-      if (!code || !cookieStr.includes('ru00y-owner=state:' + state)) {
-        return new Response('Invalid state', { status: 403 })
-      }
-
-      const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          client_id: env.GITHUB_CLIENT_ID,
-          client_secret: env.GITHUB_CLIENT_SECRET,
-          code,
-        }),
-      })
-      const data = await tokenRes.json()
-      if (!data.access_token) return new Response('Auth failed', { status: 403 })
-
-      const userRes = await fetch('https://api.github.com/user', {
-        headers: { Authorization: 'Bearer ' + data.access_token, 'User-Agent': 'ru00y-lab' },
-      })
-      const user = await userRes.json()
-      const ownerId = parseInt(env.OWNER_GITHUB_ID || '0')
-
-      if (user.id !== ownerId) {
-        return Response.redirect('https://ru00ys-lab.com/?auth=denied', 302)
-      }
-
-      const sig = await hmacSign(String(user.id), secret)
-      const value = user.id + ':' + sig
-      const res = Response.redirect('https://ru00ys-lab.com/?auth=ok', 302)
-      res.headers.set('Set-Cookie', cookieHeader(value))
-      res.headers.append('Set-Cookie', cookieHeader('state:', 0))
-      return res
-    }
-
-    // /me — check login
+    // /me — check owner
     if (url.pathname === '/me') {
-      const cookieStr = request.headers.get('Cookie') || ''
-      const match = cookieStr.match(/ru00y-owner=([^;]+)/)
-      if (!match) return new Response('{"ok":false}', { headers: { ...cors, 'Content-Type': 'application/json' } })
-      const [uid, sig] = match[1].split(':')
-      if (uid && sig && (await verify(uid, sig, secret))) {
-        return new Response('{"ok":true}', { headers: { ...cors, 'Content-Type': 'application/json' } })
-      }
-      return new Response('{"ok":false}', { headers: { ...cors, 'Content-Type': 'application/json' } })
+      const cookie = request.headers.get('Cookie') || ''
+      const ok = cookie.includes('ru00y-owner=1')
+      return new Response(JSON.stringify({ ok }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
     // /track — record visitor (skip owner)
     if (url.pathname === '/track') {
-      const cookieStr = request.headers.get('Cookie') || ''
-      const match = cookieStr.match(/ru00y-owner=([^;]+)/)
-      if (match) {
-        const [uid, sig] = match[1].split(':')
-        if (uid && sig && (await verify(uid, sig, secret))) {
-          return new Response('ok', { headers: cors })
-        }
+      const cookie = request.headers.get('Cookie') || ''
+      if (cookie.includes('ru00y-owner=1')) {
+        return new Response('ok', { headers: cors })
       }
 
       const cf = request.cf || {}
