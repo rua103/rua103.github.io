@@ -23,6 +23,8 @@ export default {
     if (url.pathname === '/track') {
       const cf = request.cf || {}
       const ip = request.headers.get('cf-connecting-ip') || 'unknown'
+      const now = Date.now()
+      const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
       const entry = {
         ip,
         city: cf.city || null,
@@ -30,8 +32,8 @@ export default {
         country: cf.country || null,
         lat: cf.latitude || null,
         lon: cf.longitude || null,
-        colo: cf.colo || null,
-        time: Date.now(),
+        date: today,
+        time: now,
       }
 
       // Skip if no geo data
@@ -43,8 +45,8 @@ export default {
       let raw = await env.VISITORS.get('data')
       let visitors = raw ? JSON.parse(raw) : []
 
-      // Dedup by IP — keep latest entry, remove old one
-      visitors = visitors.filter(v => v.ip !== ip)
+      // Dedup by IP per day — only one entry per IP per date
+      visitors = visitors.filter(v => !(v.ip === ip && v.date === today))
       visitors.push(entry)
 
       // Keep last 500 visitors max
