@@ -11,17 +11,17 @@
 
 const OWNER_GITHUB_ID = 'your-github-id' // replace with your numeric GitHub ID
 const COOKIE_NAME = 'ru00y-owner'
-const COOKIE_SECRET = 'replace-with-random-secret' // Worker secret: COOKIE_SECRET
+let COOKIE_SECRET = 'replace-with-random-secret' // overridden by env.COOKIE_SECRET
 
-async function sign(data) {
+async function sign(data, secret) {
   const enc = new TextEncoder()
-  const key = await crypto.subtle.importKey('raw', enc.encode(COOKIE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
   const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data))
   return btoa(String.fromCharCode(...new Uint8Array(sig)))
 }
 
 async function verify(data, sig) {
-  return sig === await sign(data)
+  return sig === await sign(data, COOKIE_SECRET)
 }
 
 function cookieHeader(value, maxAge = 31536000) {
@@ -91,7 +91,7 @@ export default {
       }
 
       // Owner authenticated — set signed cookie
-      const value = user.id + ':' + (await sign(String(user.id)))
+      const value = user.id + ':' + (await sign(String(user.id), COOKIE_SECRET))
       const res = Response.redirect('https://ru00ys-lab.com/?auth=ok', 302)
       res.headers.set('Set-Cookie', cookieHeader(value))
       // Also clear state cookie
