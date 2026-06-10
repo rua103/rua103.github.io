@@ -1,7 +1,6 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
 import { Comment } from '@/components/giscus'
-import WorldMap from '@/components/map/WorldMap.astro'
 import rawFriends from '../../data/friends.json'
 
 interface Friend {
@@ -72,8 +71,11 @@ const shuffled = shuffle(friends)
       <!-- Visitor Map -->
       <section>
         <h2 class='text-xl font-semibold text-foreground mb-4'>Visitors</h2>
-        <p class='text-muted-foreground text-sm mb-4'>Where people are reading from. Each dot is a visitor — the bigger, the more from that area.</p>
-        <WorldMap />
+        <p class='text-muted-foreground text-sm mb-4'>Where people are reading from.</p>
+        <div class='rounded-xl border bg-muted p-4 flex justify-center'>
+          <script type="text/javascript" id="mapmyvisitors" src="//mapmyvisitors.com/map.js?d=SOsPWyskcSUjPR7c2EclCJ_3s8ST1eeLmiNSSPbLrY0&cl=ffffff&w=a">
+          </script>
+        </div>
       </section>
 
       <!-- Friends Grid -->
