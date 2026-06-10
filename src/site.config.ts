@@ -71,7 +71,7 @@ export const integ: IntegrationUserConfig = {
     ],
     cacheAvatar: false
   },
-  pagefind: false,
+  pagefind: true,
   quote: {
     server: 'https://dummyjson.com/quotes/random',
     target: `(data) => (data.quote.length > 80 ? \`\${data.quote.slice(0, 80)}...\` : data.quote || 'Error')`
