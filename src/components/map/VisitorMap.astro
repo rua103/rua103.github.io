@@ -51,8 +51,8 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
         <stop offset='100%' class='visitor-land-stop-end' />
       </linearGradient>
       <radialGradient id='visitor-point-glow' cx='50%' cy='50%' r='50%'>
-        <stop offset='0%' stop-color='hsl(207, 72%, 62%)' stop-opacity='0.34' />
-        <stop offset='100%' stop-color='hsl(207, 72%, 62%)' stop-opacity='0' />
+        <stop offset='0%' stop-color='hsl(195, 100%, 75%)' stop-opacity='0.55' />
+        <stop offset='100%' stop-color='hsl(195, 100%, 75%)' stop-opacity='0' />
       </radialGradient>
     </defs>
     <g class='visitor-map-graticule'>
@@ -140,11 +140,15 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
         var label =
           [visitor.city, visitor.region, visitor.country].filter(Boolean).join(', ') || 'Visitor'
 
+        // Pulsing halo. Visual attributes set directly (Astro scoped CSS
+        // does not reach runtime-created SVG nodes), animation via global CSS.
         pointLayer.appendChild(
           createSvgElement('circle', {
             cx: x,
             cy: y,
-            r: radius * 3.1,
+            r: radius * 2.8,
+            fill: 'url(#visitor-point-glow)',
+            'pointer-events': 'none',
             class: 'visitor-point-glow'
           })
         )
@@ -153,6 +157,10 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
           cx: x,
           cy: y,
           r: radius,
+          fill: 'hsl(200, 100%, 92%)',
+          stroke: 'hsl(207, 88%, 46%)',
+          'stroke-width': 2.4,
+          'vector-effect': 'non-scaling-stroke',
           class: 'visitor-point'
         })
         var title = createSvgElement('title', {})
@@ -214,19 +222,6 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
     vector-effect: non-scaling-stroke;
   }
 
-  .visitor-point-glow {
-    fill: url(#visitor-point-glow);
-    pointer-events: none;
-  }
-
-  .visitor-point {
-    fill: hsl(207, 72%, 48%);
-    fill-opacity: 0.82;
-    stroke: hsl(var(--background));
-    stroke-width: 1.8;
-    vector-effect: non-scaling-stroke;
-  }
-
   .visitor-map-status {
     position: absolute;
     inset: 0;
@@ -236,5 +231,49 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
     color: hsl(var(--muted-foreground));
     font-size: 0.875rem;
     pointer-events: none;
+  }
+</style>
+
+<style is:global>
+  /* Runtime-created points live outside Astro's scoped CSS, so target them globally. */
+  #visitor-map-points .visitor-point {
+    cursor: pointer;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform 0.18s ease,
+      filter 0.18s ease;
+  }
+
+  #visitor-map-points .visitor-point:hover {
+    transform: scale(1.45);
+    filter: drop-shadow(0 0 6px hsl(195 100% 70% / 0.9));
+  }
+
+  #visitor-map-points .visitor-point-glow {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: visitor-pulse 2.6s ease-in-out infinite;
+  }
+
+  @keyframes visitor-pulse {
+    0%,
+    100% {
+      transform: scale(0.85);
+      opacity: 0.55;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #visitor-map-points .visitor-point-glow {
+      animation: none;
+    }
+    #visitor-map-points .visitor-point {
+      transition: none;
+    }
   }
 </style>
