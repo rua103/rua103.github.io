@@ -1,11 +1,24 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
 import friends from '../../data/friends.json'
+
+// Fisher-Yates shuffle
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const shuffled = shuffle(friends)
 ---
 
 <PageLayout meta={{ title: 'Connect' }}>
   <main class='flex w-full flex-col items-center py-12'>
     <div class='w-full animate flex flex-col gap-y-12 md:w-4/5 lg:w-5/6'>
+
       <!-- Header -->
       <div class='text-center'>
         <h1 class='text-3xl font-bold gradient-text mb-2'>Connect</h1>
@@ -13,9 +26,9 @@ import friends from '../../data/friends.json'
       </div>
 
       <!-- Subscribe -->
-      <section>
-        <div class='rounded-2xl border bg-muted p-6 max-w-md mx-auto'>
-          <h2 class='text-lg font-semibold text-foreground mb-1'>📬 Subscribe</h2>
+      <section class='max-w-md mx-auto w-full'>
+        <div class='rounded-2xl border bg-muted p-6'>
+          <h2 class='text-lg font-semibold text-foreground mb-1'>Subscribe</h2>
           <p class='text-muted-foreground text-sm mb-4'>
             Get new posts delivered to your inbox.
           </p>
@@ -37,7 +50,6 @@ import friends from '../../data/friends.json'
             <p id="email-error" class="hidden text-red-500 text-xs mt-1.5"></p>
             <button
               type="submit"
-              id="subscribe-btn"
               class="w-full h-11 mt-3 rounded-lg bg-foreground text-background font-semibold text-sm hover:opacity-85 transition-opacity"
             >
               Subscribe
@@ -49,36 +61,36 @@ import friends from '../../data/friends.json'
         </div>
       </section>
 
-      <!-- Friends -->
+      <!-- Friends Grid -->
       <section>
-        <h2 class='text-xl font-semibold text-foreground mb-4'>🔗 Friends</h2>
+        <h2 class='text-xl font-semibold text-foreground mb-4'>Friends</h2>
         {
-          friends.length > 0 ? (
-            <div class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              {friends.map((friend) => (
+          shuffled.length > 0 ? (
+            <div class='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+              {shuffled.map((friend) => (
                 <a
                   href={friend.link}
                   target='_blank'
                   rel='noopener noreferrer'
-                  class='flex items-start gap-x-4 rounded-xl border bg-muted p-4 transition-all hover:scale-[1.02] hover:shadow-lg'
+                  class='flex items-center gap-x-4 rounded-xl border bg-muted p-4 transition-all hover:scale-[1.02] hover:shadow-lg'
                 >
                   <img
                     src={friend.avatar}
                     alt={friend.name}
-                    class='size-12 rounded-full shrink-0 bg-background'
+                    class='size-12 rounded-full shrink-0 bg-background object-cover'
                     loading='lazy'
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22 rx=%2220%22/><text x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2240%22>👤</text></svg>'"
+                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect fill=%22%23e5e7eb%22 width=%22100%22 height=%22100%22 rx=%2220%22/%3E%3Ctext x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2240%22 fill=%22%239ca3af%22%3E%3F%3C/text%3E%3C/svg%3E'"
                   />
                   <div class='min-w-0'>
                     <div class='font-medium text-foreground truncate'>{friend.name}</div>
-                    <div class='text-sm text-muted-foreground mt-0.5 line-clamp-2'>{friend.desc}</div>
+                    <div class='text-sm text-muted-foreground mt-0.5 line-clamp-1'>{friend.desc}</div>
                   </div>
                 </a>
               ))}
             </div>
           ) : (
             <div class='rounded-xl border bg-muted p-8 text-center text-muted-foreground text-sm'>
-              No friends yet — <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>be the first?</a>
+              No friends yet. <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>Be the first?</a>
             </div>
           )
         }
@@ -86,29 +98,70 @@ import friends from '../../data/friends.json'
 
       <!-- Exchange Card -->
       <section>
-        <h2 class='text-xl font-semibold text-foreground mb-4'>📋 Want to exchange links?</h2>
-        <p class='text-muted-foreground text-sm mb-4'>
-          Add my site to your friends list first, then <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>send me an email</a> with your info.
-        </p>
-        <div class='rounded-xl border bg-muted p-5 flex flex-col sm:flex-row items-center gap-x-5 gap-y-3'>
+        <h2 class='text-xl font-semibold text-foreground mb-4'>Want to exchange links?</h2>
+        <div class='rounded-xl border bg-muted p-5 flex flex-col sm:flex-row items-center gap-x-5 gap-y-4'>
           <img
             src='/favicon/favicon.png'
             alt="Ru00y's Lab avatar"
             class='size-16 rounded-full shrink-0 border-2 border-border'
           />
-          <div class='font-mono text-sm text-muted-foreground whitespace-pre-line leading-relaxed min-w-0'>
-            Name:  Ru00y's Lab
-            Link:  https://ru00ys-lab.com/
-            Bio:   Licensed to Wander
-            Avatar: <a href='https://ru00ys-lab.com/favicon/favicon.png' class='highlight text-xs break-all'>https://ru00ys-lab.com/favicon/favicon.png</a>
+          <div class='min-w-0 w-full grid grid-cols-1 gap-y-2 text-sm'>
+            <div class='flex flex-col sm:flex-row sm:items-center gap-x-2'>
+              <span class='text-muted-foreground shrink-0 w-16'>Name</span>
+              <button class='copy-btn font-mono text-foreground cursor-pointer hover:text-primary transition-colors text-left' data-copy="Ru00y's Lab">Ru00y's Lab</button>
+              <span class='copied-toast hidden text-xs text-green-500'>Copied!</span>
+            </div>
+            <div class='flex flex-col sm:flex-row sm:items-center gap-x-2'>
+              <span class='text-muted-foreground shrink-0 w-16'>Desc</span>
+              <button class='copy-btn font-mono text-foreground cursor-pointer hover:text-primary transition-colors text-left' data-copy="Licensed to Wander">Licensed to Wander</button>
+              <span class='copied-toast hidden text-xs text-green-500'>Copied!</span>
+            </div>
+            <div class='flex flex-col sm:flex-row sm:items-center gap-x-2'>
+              <span class='text-muted-foreground shrink-0 w-16'>Link</span>
+              <button class='copy-btn font-mono text-foreground cursor-pointer hover:text-primary transition-colors text-left break-all' data-copy="https://ru00ys-lab.com/">https://ru00ys-lab.com/</button>
+              <span class='copied-toast hidden text-xs text-green-500'>Copied!</span>
+            </div>
+            <div class='flex flex-col sm:flex-row sm:items-center gap-x-2'>
+              <span class='text-muted-foreground shrink-0 w-16'>Avatar</span>
+              <button class='copy-btn font-mono text-foreground cursor-pointer hover:text-primary transition-colors text-left break-all' data-copy="https://ru00ys-lab.com/favicon/favicon.png">https://ru00ys-lab.com/favicon/favicon.png</button>
+              <span class='copied-toast hidden text-xs text-green-500'>Copied!</span>
+            </div>
           </div>
         </div>
+        <div class='mt-4 text-sm text-muted-foreground space-y-1'>
+          <p>Before applying, please make sure:</p>
+          <ul class='list-disc pl-5 space-y-0.5'>
+            <li>You have already added my site to your friends list.</li>
+            <li>Your site is alive and regularly updated.</li>
+            <li>Your content complies with applicable laws.</li>
+          </ul>
+          <p class='mt-2'>
+            Then <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>send me an email</a> with your info — I'll add you back soon.
+          </p>
+        </div>
       </section>
+
     </div>
   </main>
 </PageLayout>
 
 <script>
+  // Copy-to-clipboard buttons
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const text = (btn as HTMLElement).dataset.copy
+      if (text) {
+        navigator.clipboard.writeText(text)
+        const toast = (btn as HTMLElement).nextElementSibling as HTMLElement
+        if (toast) {
+          toast.classList.remove('hidden')
+          setTimeout(() => toast.classList.add('hidden'), 1500)
+        }
+      }
+    })
+  })
+
+  // Email validation
   const form = document.querySelector('form')
   const emailInput = document.getElementById('email') as HTMLInputElement
   const errorEl = document.getElementById('email-error') as HTMLElement
