@@ -1,0 +1,53 @@
+<div id="world-map" class="relative w-full rounded-xl border bg-muted overflow-hidden" style="aspect-ratio:2/1;min-height:300px">
+  <p id="map-status" class="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm z-10">Loading visitors...</p>
+  <svg id="map-dots" class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<script is:inline>
+  (function() {
+    // Simple world map outline as SVG path (equirectangular projection)
+    var MAP_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" class="absolute inset-0 w-full h-full"><g fill="#e5e7eb" stroke="#d1d5db" stroke-width="0.5">' +
+      // Simplified country outlines
+      '<path d="M180 60 L190 55 L200 58 L210 52 L220 55 L230 50 L240 53 L250 48 L260 52 L270 47 L280 50 L290 45 L300 48 L310 50 L320 55 L330 52 L340 56 L350 53 L360 57 L370 55 L380 58 L390 60 L400 58 L410 62 L420 60 L430 63 L440 62 L450 65 L460 63 L470 66 L480 65 L490 68 L500 70 L510 72 L520 71 L530 73 L540 75 L550 73 L560 76 L570 75 L580 78 L590 80 L600 78 L610 76 L620 74 L630 72 L640 70 L650 68 L660 66 L670 64 L680 62 L690 60 L700 61 L710 59 L720 60 L715 65 L710 70 L720 75 L715 80 L710 85 L705 90 L700 88 L695 85 L690 82 L685 80 L680 78 L675 76 L670 74 L660 72 L650 70 L640 68 L630 66 L620 64 L610 62 L600 60 L590 58 L580 60 L570 62 L560 64 L550 66 L540 68 L530 70 L520 72 L510 74 L500 76 L490 78 L480 80 L470 82 L460 84 L450 86 L440 88 L430 90 L420 92 L410 94 L395 96 L370 95 L340 94 L310 96 L280 95 L250 93 L220 92 L195 90 L180 88 L170 86 L160 84 L150 82 L140 80 L130 78 L120 76 L110 74 L100 72 L90 70 L80 68 L70 66 L60 64 L50 62 L40 60 L30 58 L20 60 L10 62 L5 67 L0 70 L5 75 L10 80 L15 85 L20 90 L30 92 L40 94 L50 96 L60 95 L70 93 L80 91 L90 89 L100 87 L110 85 L120 83 L130 81 L140 79 L150 77 L160 75 L170 73 L175 70 L173 65 L170 62 L165 58 L170 55 L175 52 L180 50z"/><circle cx="360" cy="110" r="15" fill-opacity="0.05"/><circle cx="360" cy="260" r="12" fill-opacity="0.05"/><circle cx="360" cy="310" r="8" fill-opacity="0.05"/></g></svg>'
+
+    var container = document.getElementById('world-map')
+    if (!container) return
+    container.insertAdjacentHTML('afterbegin', MAP_SVG)
+
+    var statusEl = document.getElementById('map-status')
+
+    fetch('https://api.ru00ys-lab.com/data')
+      .then(function(r) { return r.json() })
+      .then(function(visitors) {
+        if (!visitors.length) {
+          if (statusEl) statusEl.textContent = 'No visitors yet!'
+          return
+        }
+        if (statusEl) statusEl.remove()
+
+        var dots = document.getElementById('map-dots')
+        visitors.forEach(function(v) {
+          if (!v.lat || !v.lon) return
+          // lat/lon → SVG x/y (equirectangular: x = (lon+180)/360 * width, y = (90-lat)/180 * height)
+          var cx = ((v.lon + 180) / 360) * 100
+          var cy = ((90 - v.lat) / 180) * 100
+          var c = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+          c.setAttribute('cx', cx + '%')
+          c.setAttribute('cy', cy + '%')
+          c.setAttribute('r', '3')
+          c.setAttribute('fill', 'hsl(207, 65%, 45%)')
+          c.setAttribute('opacity', '0.7')
+          c.setAttribute('style', 'mix-blend-mode:multiply')
+          if (v.city) {
+            var t = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+            t.textContent = v.city + ', ' + v.country
+            c.appendChild(t)
+          }
+          dots.appendChild(c)
+        })
+      })
+      .catch(function() {
+        if (statusEl) statusEl.textContent = 'Map not available.'
+      })
+  })()
+</script>
