@@ -142,12 +142,15 @@ if (!images[imagePath])
         <SkillLayout title='AI / ML' skills={ai} />
       </Section>
 
-      <Section title='💬 Guestbook'>
-        <p class='text-muted-foreground text-sm mb-4'>
-          Leave a message ♪ — comments are powered by GitHub Discussions.
-        </p>
+      <section id='guestbook' class='flex flex-col gap-y-5'>
+        <div class='flex flex-col gap-y-2 md:flex-row md:items-baseline md:gap-x-5'>
+          <h2 class='text-xl font-medium'>💬 Guestbook</h2>
+          <p class='text-muted-foreground text-sm'>
+            Leave a message ♪ — comments are powered by GitHub Discussions.
+          </p>
+        </div>
         <Comment />
-      </Section>
+      </section>
     </div>
     <Quote class='mt-12' />
   </main>
