@@ -35,21 +35,19 @@ if (!images[imagePath])
 
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
       <Section title='✦ Bio'>
-        <div class='rounded-2xl border bg-muted px-5 py-3'>
-          <p class='text-muted-foreground leading-7'>
-            Hey, I'm <strong class='text-foreground'>Ru00y</strong> ♪
-            I'm an undergrad working on
-            <strong class='text-foreground'>large language models</strong> and multimodal learning.
-            When I'm not staring at training curves or untangling CUDA errors,
-            I'm probably deep in a JPOP playlist.
-          </p>
-          <p class='text-muted-foreground leading-7 mt-2'>
-            I believe in understanding things from first principles —
-            whether it's deriving a transformer's attention mechanism from scratch,
-            or figuring out why a kernel launch just silently returned garbage.
-            The best way to learn is to build, break, and fix it yourself.
-          </p>
-        </div>
+        <p class='text-muted-foreground leading-7'>
+          Hey, I'm <strong class='text-foreground'>Ru00y</strong> ♪
+          I'm an undergrad working on
+          <strong class='text-foreground'>large language models</strong> and multimodal learning.
+          When I'm not staring at training curves or untangling CUDA errors,
+          I'm probably deep in a JPOP playlist.
+        </p>
+        <p class='text-muted-foreground leading-7 mt-2'>
+          I believe in understanding things from first principles —
+          whether it's deriving a transformer's attention mechanism from scratch,
+          or figuring out why a kernel launch just silently returned garbage.
+          The best way to learn is to build, break, and fix it yourself.
+        </p>
       </Section>
 
       <Section title='★ Publications'>
@@ -69,30 +67,24 @@ if (!images[imagePath])
       </Section>
 
       <Section title='🎸 Currently'>
-        <div class='rounded-2xl border bg-muted px-5 py-3'>
-          <ul class='flex flex-col gap-y-2 text-muted-foreground' style='list-style:none;padding:0;'>
-            <li>🎸 VLM robustness research</li>
-            <li>📘 Studying algorithms (CLRS) & LeetCode</li>
-            <li>💻 CS:APP labs & CS336 — Language Modeling from Scratch</li>
-            <li>🎨 Computer Graphics — OpenGL & Path Tracing</li>
-          </ul>
-        </div>
+        <ul class='flex flex-col gap-y-2 text-muted-foreground' style='list-style:none;padding:0;'>
+          <li>🎸 VLM robustness research</li>
+          <li>📘 Studying algorithms (CLRS) & LeetCode</li>
+          <li>💻 CS:APP labs & CS336 — Language Modeling from Scratch</li>
+          <li>🎨 Computer Graphics — OpenGL & Path Tracing</li>
+        </ul>
       </Section>
 
       <Section title='♩ Skills'>
-        <div class='rounded-2xl border bg-muted px-5 py-3'>
-          <SkillLayout title='Languages' skills={languages} />
-          <SkillLayout title='AI / ML' skills={ai} />
-        </div>
+        <SkillLayout title='Languages' skills={languages} />
+        <SkillLayout title='AI / ML' skills={ai} />
       </Section>
 
       <Section title='✉️ Contact'>
-        <div class='rounded-2xl border bg-muted px-5 py-3'>
-          <p class='text-muted-foreground'>
-            Find me on <a href='https://github.com/rua103' target='_blank' class='highlight'>GitHub</a> ♪
-            I'm always happy to chat about research, coding, or music!
-          </p>
-        </div>
+        <p class='text-muted-foreground'>
+          Find me on <a href='https://github.com/rua103' target='_blank' class='highlight'>GitHub</a> ♪
+          I'm always happy to chat about research, coding, or music!
+        </p>
       </Section>
     </div>
   </main>
