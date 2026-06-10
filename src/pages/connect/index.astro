@@ -1,6 +1,15 @@
 ---
 import PageLayout from '@/layouts/BaseLayout.astro'
-import friends from '../../data/friends.json'
+import rawFriends from '../../data/friends.json'
+
+interface Friend {
+  name: string
+  link: string
+  avatar: string
+  desc: string
+}
+
+const friends = rawFriends as Friend[]
 
 // Fisher-Yates shuffle
 function shuffle<T>(arr: T[]): T[] {
@@ -130,10 +139,9 @@ const shuffled = shuffle(friends)
         </div>
         <div class='mt-4 text-sm text-muted-foreground space-y-1'>
           <p>
-            I believe in keeping the web weird and wonderful. If you do too,
-            add my site to your friends list and
-            <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>shoot me an email</a>
-            with your name, link, avatar, and a short description — I'd love to check out your corner of the internet.
+            Like what you see? Let's be internet neighbors.
+            <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>Drop me an email</a>
+            with your name, link, avatar, and a short description — I'll add you here.
           </p>
         </div>
       </section>
