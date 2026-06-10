@@ -45,8 +45,8 @@
   }
 
   // Check if we should show
-  const dismissed = localStorage.getItem(KEY)
-  const theme = localStorage.getItem('theme') || 'system'
+  const dismissed = sessionStorage.getItem(KEY)
+  const theme = sessionStorage.getItem('theme') || 'system'
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   if (!dismissed && !isDark) {
@@ -56,22 +56,22 @@
 
   // Yes -> switch to dark
   document.getElementById('dark-popup-yes')?.addEventListener('click', () => {
-    localStorage.setItem('theme', 'dark')
+    sessionStorage.setItem('theme', 'dark')
     document.documentElement.classList.add('dark')
-    localStorage.setItem(KEY, '1')
+    sessionStorage.setItem(KEY, '1')
     hidePopup()
   })
 
   // No -> dismiss
   document.getElementById('dark-popup-no')?.addEventListener('click', () => {
-    localStorage.setItem(KEY, '1')
+    sessionStorage.setItem(KEY, '1')
     hidePopup()
   })
 
   // Click overlay to dismiss
   document.getElementById('dark-popup-overlay')?.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).id === 'dark-popup-overlay') {
-      localStorage.setItem(KEY, '1')
+      sessionStorage.setItem(KEY, '1')
       hidePopup()
     }
   })
