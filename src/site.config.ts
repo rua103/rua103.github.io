@@ -33,7 +33,8 @@ export const theme: ThemeUserConfig = {
       { title: 'Blog', link: '/blog' },
       { title: 'Projects', link: '/projects' },
       { title: 'Publications', link: '/publications' },
-      { title: 'About', link: '/about' }
+      { title: 'About', link: '/about' },
+      { title: 'Subscribe', link: '/subscribe' }
     ]
   },
 
