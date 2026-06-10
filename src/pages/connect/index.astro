@@ -11,6 +11,38 @@ interface Friend {
 }
 
 const friends = rawFriends as Friend[]
+const visitorMapUrl =
+  'https://mapmyvisitors.com/map.js?d=SOsPWyskcSUjPR7c2EclCJ_3s8ST1eeLmiNSSPbLrY0&cl=ffffff&w=a&t=tt'
+const visitorMapSrcdoc = `<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 220px;
+        background: transparent;
+        color-scheme: dark;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      a,
+      img,
+      canvas,
+      iframe {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" id="mapmyvisitors" src="${visitorMapUrl}"></script>
+  </body>
+</html>`
 
 // Fisher-Yates shuffle
 function shuffle<T>(arr: T[]): T[] {
@@ -72,7 +104,20 @@ const shuffled = shuffle(friends)
       <section>
         <h2 class='text-xl font-semibold text-foreground mb-4'>Visitors</h2>
         <p class='text-muted-foreground text-sm mb-4'>Where people are reading from.</p>
-        <script type="text/javascript" id="mapmyvisitors" src="https://mapmyvisitors.com/map.js?d=SOsPWyskcSUjPR7c2EclCJ_3s8ST1eeLmiNSSPbLrY0&cl=ffffff&w=a&t=tt"></script>
+        <div class='rounded-xl border bg-muted p-4'>
+          <p id='visitor-map-status' class='text-muted-foreground text-sm'>
+            Visitor map loads when it comes into view.
+          </p>
+          <iframe
+            id='visitor-map-frame'
+            title='Visitor map'
+            loading='lazy'
+            sandbox='allow-scripts allow-popups allow-popups-to-escape-sandbox'
+            referrerpolicy='no-referrer'
+            data-srcdoc={visitorMapSrcdoc}
+            class='mt-3 h-64 w-full border-0'
+          ></iframe>
+        </div>
       </section>
 
       <!-- Friends Grid -->
@@ -212,6 +257,65 @@ const shuffled = shuffle(friends)
       return
     }
   })
+
+  // Visitor map lazy loading. The third-party script can be slow, so keep it
+  // isolated from the main document and avoid loading it for ignored browsers.
+  const visitorIgnoreKey = 'ru00y:ignore-visits'
+  const visitorMapFrame = document.getElementById('visitor-map-frame') as HTMLIFrameElement
+  const visitorMapStatus = document.getElementById('visitor-map-status') as HTMLElement
+
+  function shouldIgnoreVisits() {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('ignore_visits') === '1') localStorage.setItem(visitorIgnoreKey, '1')
+      if (params.get('ignore_visits') === '0') localStorage.removeItem(visitorIgnoreKey)
+
+      const hostname = window.location.hostname
+      const isLocal =
+        hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+
+      if (isLocal) return true
+      return localStorage.getItem(visitorIgnoreKey) === '1'
+    } catch {
+      return true
+    }
+  }
+
+  function loadVisitorMap() {
+    if (!visitorMapFrame || visitorMapFrame.dataset.loaded === 'true') return
+
+    if (shouldIgnoreVisits()) {
+      visitorMapStatus.textContent = 'Visitor map is hidden for this browser.'
+      return
+    }
+
+    const srcdoc = visitorMapFrame.dataset.srcdoc
+    if (!srcdoc) return
+
+    visitorMapFrame.dataset.loaded = 'true'
+    visitorMapStatus.textContent = 'Loading visitor map...'
+    visitorMapFrame.srcdoc = srcdoc
+
+    window.setTimeout(() => {
+      if (visitorMapStatus.textContent === 'Loading visitor map...') {
+        visitorMapStatus.textContent = 'Still waiting on mapmyvisitors.com.'
+      }
+    }, 8000)
+  }
+
+  if ('IntersectionObserver' in window && visitorMapFrame) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        loadVisitorMap()
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(visitorMapFrame)
+  } else {
+    loadVisitorMap()
+  }
 </script>
 
 <style>

@@ -86,6 +86,25 @@ const {
     </style>
     <DarkModePopup />
     <DockMagnify />
-    <script is:inline>fetch('https://api.ru00ys-lab.com/track',{method:'GET'}).catch(function(){})</script>
+    <script is:inline>
+      ;(() => {
+        const hostname = window.location.hostname
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return
+
+        const key = 'ru00y:tracked-date'
+        const now = new Date()
+        const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
+        if (localStorage.getItem(key) === today) return
+
+        fetch('https://api.ru00ys-lab.com/me', { credentials: 'include' })
+          .then(r => r.json())
+          .then(d => {
+            if (d.ok) return // owner — skip
+            localStorage.setItem(key, today)
+            fetch('https://api.ru00ys-lab.com/track', { credentials: 'include' }).catch(() => {})
+          })
+          .catch(() => {})
+      })()
+    </script>
   </body>
 </html>
