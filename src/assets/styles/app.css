@@ -60,6 +60,14 @@ a {
   margin: 0.5rem 0;
 }
 
+/* ── Frosted glass / 毛玻璃 ── */
+.bg-muted {
+  --un-bg-opacity: 0.55;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: hsl(var(--border) / 0.5);
+}
+
 /* ── Section divider with music notes ── */
 .mio-divider {
   display: flex;
