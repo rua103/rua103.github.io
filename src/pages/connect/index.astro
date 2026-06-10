@@ -289,9 +289,9 @@ const shuffled = shuffle(friends)
           '<span class="text-muted-foreground text-xs shrink-0">' +
           ago +
           '</span>' +
-          '<button class="subscriber-del text-muted-foreground/40 hover:text-red-500 transition-colors text-xs shrink-0 leading-none" data-email="' +
+          '<button class="subscriber-del shrink-0 size-[18px] rounded-full border border-transparent flex items-center justify-center transition-all text-[10px] leading-none text-muted-foreground/50 hover:text-red-400 hover:border-red-400/30 hover:bg-red-500/8 active:scale-90" data-email="' +
           escapeHtml(s.email) +
-          '" title="Remove">×</button>' +
+          '" title="Remove">✕</button>' +
           '</div>'
       }
       list.innerHTML = html
