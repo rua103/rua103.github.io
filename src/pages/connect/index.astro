@@ -312,7 +312,7 @@ const shuffled = shuffle(friends)
         .then(function (r) { return r.json() })
         .then(function (d) {
           if (!d.ok) return
-          btn.closest('.flex').remove()
+          btn.parentElement.remove()
           countEl.textContent = d.count + ' subscriber' + (d.count !== 1 ? 's' : '')
         })
         .catch(function () {})
