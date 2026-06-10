@@ -60,12 +60,18 @@ a {
   margin: 0.5rem 0;
 }
 
-/* ── Frosted glass / 毛玻璃 ── */
+/* ── macOS-style frosted glass ── */
 .bg-muted {
-  --un-bg-opacity: 0.55;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-color: hsl(var(--border) / 0.5);
+  --un-bg-opacity: 0.35;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid hsl(var(--border) / 0.18);
+  border-top: 1px solid hsl(var(--border) / 0.35);
+  box-shadow: 0 8px 32px hsl(var(--background) / 0.08);
+}
+
+.card-shadow {
+  box-shadow: 0 4px 24px hsl(var(--background) / 0.06);
 }
 
 /* ── Section divider with music notes ── */
