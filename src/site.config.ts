@@ -34,7 +34,7 @@ export const theme: ThemeUserConfig = {
       { title: 'Projects', link: '/projects' },
       { title: 'Publications', link: '/publications' },
       { title: 'About', link: '/about' },
-      { title: 'Subscribe', link: '/subscribe' }
+      { title: 'Connect', link: '/connect' }
     ]
   },
 

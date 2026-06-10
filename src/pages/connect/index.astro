@@ -1,0 +1,138 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import friends from '../../data/friends.json'
+---
+
+<PageLayout meta={{ title: 'Connect' }}>
+  <main class='flex w-full flex-col items-center py-12'>
+    <div class='w-full animate flex flex-col gap-y-12 md:w-4/5 lg:w-5/6'>
+      <!-- Header -->
+      <div class='text-center'>
+        <h1 class='text-3xl font-bold gradient-text mb-2'>Connect</h1>
+        <p class='text-muted-foreground'>Stay updated. Meet friends.</p>
+      </div>
+
+      <!-- Subscribe -->
+      <section>
+        <div class='rounded-2xl border bg-muted p-6 max-w-md mx-auto'>
+          <h2 class='text-lg font-semibold text-foreground mb-1'>📬 Subscribe</h2>
+          <p class='text-muted-foreground text-sm mb-4'>
+            Get new posts delivered to your inbox.
+          </p>
+          <form
+            action="https://api.follow.it/subscription-form/NGxBMDlLU3o3MGZPNnRpZXJJNWcwaDIwTlhnYzJXaWQrUysycGpDY2hYRTZJOWR3VXVzOU9EUUVwTFY4dnJoZnpCN2RCV3NlVGlIU3lKekhLNTdJK3FJUmRobUo2SlJIbGw5SEtBY0lKdVl4ZE1yYW93VXAxR283K3VKUkk4cVd8VXRyRVlBTG52ZWRCTGptZ2VsREUzcWYxcEt4ZWs2L2c5cXFLRU9NOGE1VT0=/8"
+            method="post"
+            target="_blank"
+            novalidate
+          >
+            <input
+              type="email"
+              name="email"
+              id="email"
+              required
+              aria-describedby="email-error"
+              placeholder="Enter your email"
+              class="w-full h-11 rounded-lg border bg-background px-4 text-sm outline-none focus:border-primary transition-colors"
+            />
+            <p id="email-error" class="hidden text-red-500 text-xs mt-1.5"></p>
+            <button
+              type="submit"
+              id="subscribe-btn"
+              class="w-full h-11 mt-3 rounded-lg bg-foreground text-background font-semibold text-sm hover:opacity-85 transition-opacity"
+            >
+              Subscribe
+            </button>
+          </form>
+          <p class="text-muted-foreground text-xs text-center mt-3">
+            Powered by <a href="https://follow.it" class="underline" target="_blank">follow.it</a>
+          </p>
+        </div>
+      </section>
+
+      <!-- Friends -->
+      <section>
+        <h2 class='text-xl font-semibold text-foreground mb-4'>🔗 Friends</h2>
+        {
+          friends.length > 0 ? (
+            <div class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              {friends.map((friend) => (
+                <a
+                  href={friend.link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  class='flex items-start gap-x-4 rounded-xl border bg-muted p-4 transition-all hover:scale-[1.02] hover:shadow-lg'
+                >
+                  <img
+                    src={friend.avatar}
+                    alt={friend.name}
+                    class='size-12 rounded-full shrink-0 bg-background'
+                    loading='lazy'
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22 rx=%2220%22/><text x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2240%22>👤</text></svg>'"
+                  />
+                  <div class='min-w-0'>
+                    <div class='font-medium text-foreground truncate'>{friend.name}</div>
+                    <div class='text-sm text-muted-foreground mt-0.5 line-clamp-2'>{friend.desc}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class='rounded-xl border bg-muted p-8 text-center text-muted-foreground text-sm'>
+              No friends yet — <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>be the first?</a>
+            </div>
+          )
+        }
+      </section>
+
+      <!-- Exchange Card -->
+      <section>
+        <h2 class='text-xl font-semibold text-foreground mb-4'>📋 Want to exchange links?</h2>
+        <p class='text-muted-foreground text-sm mb-4'>
+          Add my site to your friends list first, then <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>send me an email</a> with your info.
+        </p>
+        <div class='rounded-xl border bg-muted p-5 font-mono text-sm text-muted-foreground whitespace-pre-line leading-relaxed'>
+          Name:  Ru00y's Lab
+          Link:  https://ru00ys-lab.com/
+          Bio:   <!-- Write your short bio here -->
+          Avatar: https://ru00ys-lab.com/favicon/favicon.png
+        </div>
+      </section>
+    </div>
+  </main>
+</PageLayout>
+
+<script>
+  const form = document.querySelector('form')
+  const emailInput = document.getElementById('email') as HTMLInputElement
+  const errorEl = document.getElementById('email-error') as HTMLElement
+
+  form?.addEventListener('submit', (e) => {
+    errorEl.classList.add('hidden')
+    emailInput.classList.remove('border-red-500')
+
+    if (!emailInput.value.trim()) {
+      e.preventDefault()
+      errorEl.textContent = 'Please enter your email address.'
+      errorEl.classList.remove('hidden')
+      emailInput.classList.add('border-red-500')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+      e.preventDefault()
+      errorEl.textContent = 'Please enter a valid email address.'
+      errorEl.classList.remove('hidden')
+      emailInput.classList.add('border-red-500')
+      return
+    }
+  })
+</script>
+
+<style>
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
