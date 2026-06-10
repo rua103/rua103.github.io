@@ -107,7 +107,7 @@ export default {
 
       const sig = await hmac(String(user.id), secret)
       const val = user.id + ':' + sig
-      return redirect('https://ru00ys-lab.com/connect?auth=ok', [
+      return redirect('https://ru00ys-lab.com/connect', [
         cookieStr(OWNER_COOKIE, val),
         cookieStr(STATE_COOKIE, '', 0),
       ])

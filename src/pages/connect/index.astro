@@ -241,21 +241,13 @@ const shuffled = shuffle(friends)
 </script>
 
 <script is:inline>
-  // Owner auth & subscriber panel
+  // Silent owner check — if browser has the owner cookie, show subscriber panel.
+  // Same pattern as BaseLayout's visitor tracking: call /me with credentials.
   ;(function () {
     const panel = document.getElementById('subscriber-panel')
     const list = document.getElementById('subscriber-list')
     const countEl = document.getElementById('subscriber-count')
     if (!panel || !list || !countEl) return
-
-    const params = new URLSearchParams(window.location.search)
-    const auth = params.get('auth')
-
-    if (auth) {
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-
-    if (auth !== 'ok') return
 
     fetch('https://api.ru00ys-lab.com/me', { credentials: 'include' })
       .then(function (r) { return r.json() })
