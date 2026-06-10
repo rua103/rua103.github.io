@@ -37,7 +37,7 @@ const parallels: number[] = []
 for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
 ---
 
-<div class='visitor-map' aria-label='Visitor world map'>
+<div id='visitor-map-shell' class='visitor-map' aria-label='Visitor world map'>
   <svg
     id='visitor-world-map'
     class='visitor-world-map'
@@ -65,12 +65,15 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
     <g id='visitor-map-points'></g>
   </svg>
   <p id='map-status' class='visitor-map-status'>Loading visitors...</p>
+  <div id='visitor-map-tooltip' class='visitor-map-tooltip' aria-hidden='true'></div>
 </div>
 
 <script is:inline define:vars={{ W, H }}>
   ;(function () {
     var status = document.getElementById('map-status')
+    var mapShell = document.getElementById('visitor-map-shell')
     var pointLayer = document.getElementById('visitor-map-points')
+    var tooltip = document.getElementById('visitor-map-tooltip')
     if (!pointLayer) return
 
     function projectX(lon) {
@@ -124,6 +127,38 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
       status.textContent = text
     }
 
+    function hideTooltip() {
+      if (!tooltip) return
+      tooltip.classList.remove('is-visible')
+      tooltip.setAttribute('aria-hidden', 'true')
+    }
+
+    function positionTooltip(target) {
+      if (!tooltip || !mapShell) return
+
+      var shellRect = mapShell.getBoundingClientRect()
+      var markerRect = target.getBoundingClientRect()
+      var x = markerRect.left + markerRect.width / 2 - shellRect.left
+      var y = markerRect.top - shellRect.top
+
+      var tooltipRect = tooltip.getBoundingClientRect()
+      var padding = 12
+      var halfWidth = tooltipRect.width / 2
+      var left = Math.min(Math.max(x, padding + halfWidth), shellRect.width - padding - halfWidth)
+
+      tooltip.style.left = left + 'px'
+      tooltip.style.top = y + 'px'
+    }
+
+    function showTooltip(text, target) {
+      if (!tooltip || !target) return
+
+      tooltip.textContent = text
+      tooltip.setAttribute('aria-hidden', 'false')
+      tooltip.classList.add('is-visible')
+      positionTooltip(target)
+    }
+
     function drawVisitors(visitors) {
       pointLayer.replaceChildren()
       var groups = groupVisitors(visitors)
@@ -161,11 +196,23 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
           stroke: 'hsl(207, 88%, 46%)',
           'stroke-width': 2.4,
           'vector-effect': 'non-scaling-stroke',
-          class: 'visitor-point'
+          class: 'visitor-point',
+          tabindex: '0',
+          role: 'img',
+          'aria-label': label + ' (' + count + ')'
         })
-        var title = createSvgElement('title', {})
-        title.textContent = label + ' (' + count + ')'
-        marker.appendChild(title)
+        var tooltipText = label + ' (' + count + ')'
+        marker.addEventListener('mouseenter', function () {
+          showTooltip(tooltipText, marker)
+        })
+        marker.addEventListener('mousemove', function () {
+          positionTooltip(marker)
+        })
+        marker.addEventListener('mouseleave', hideTooltip)
+        marker.addEventListener('focus', function () {
+          showTooltip(tooltipText, marker)
+        })
+        marker.addEventListener('blur', hideTooltip)
         pointLayer.appendChild(marker)
       })
 
@@ -231,6 +278,34 @@ for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
     color: hsl(var(--muted-foreground));
     font-size: 0.875rem;
     pointer-events: none;
+  }
+
+  .visitor-map-tooltip {
+    position: absolute;
+    z-index: 2;
+    max-width: min(20rem, calc(100% - 1.5rem));
+    padding: 0.42rem 0.62rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    background: hsl(var(--background) / 0.88);
+    box-shadow: 0 10px 28px hsl(0 0% 0% / 0.2);
+    color: hsl(var(--foreground));
+    font: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    transform: translate(-50%, -100%) translateY(-0.35rem);
+    transition:
+      opacity 0.14s ease,
+      transform 0.14s ease;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+  }
+
+  .visitor-map-tooltip.is-visible {
+    opacity: 1;
   }
 </style>
 
