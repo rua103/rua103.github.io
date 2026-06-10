@@ -52,9 +52,12 @@ export default {
       }
     }
     if (request.method === 'OPTIONS') {
-      const allowHeaders = url.pathname === '/subscribe' ? 'Content-Type' : ''
-      const h = corsHeaders(allowHeaders ? 'GET, POST, OPTIONS' : 'GET, OPTIONS')
-      if (allowHeaders) h['Access-Control-Allow-Headers'] = allowHeaders
+      let methods = 'GET, OPTIONS'
+      const allowHeaders = []
+      if (url.pathname === '/subscribe') { methods = 'GET, POST, OPTIONS'; allowHeaders.push('Content-Type') }
+      if (url.pathname === '/subscribers') { methods = 'GET, DELETE, OPTIONS'; allowHeaders.push('Content-Type') }
+      const h = corsHeaders(methods)
+      if (allowHeaders.length) h['Access-Control-Allow-Headers'] = allowHeaders.join(', ')
       return new Response(null, { headers: h })
     }
 
@@ -184,7 +187,7 @@ export default {
       return new Response(raw, { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
     }
 
-    // /subscribers — owner-only subscriber list
+    // /subscribers — owner-only: GET list, DELETE by email
     if (url.pathname === '/subscribers') {
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
@@ -193,6 +196,22 @@ export default {
         return new Response(JSON.stringify({ ok: false }),
           { status: 403, headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
       }
+
+      if (request.method === 'DELETE') {
+        try {
+          const { email } = await request.json()
+          let raw = await env.VISITORS.get('subscribers')
+          let subs = raw ? JSON.parse(raw) : []
+          subs = subs.filter(s => s.email !== email)
+          await env.VISITORS.put('subscribers', JSON.stringify(subs))
+          return new Response(JSON.stringify({ ok: true, count: subs.length }),
+            { headers: { ...corsHeaders('DELETE, OPTIONS'), 'Content-Type': 'application/json' } })
+        } catch {
+          return new Response(JSON.stringify({ ok: false }),
+            { status: 400, headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+        }
+      }
+
       const raw = await env.VISITORS.get('subscribers')
       const subs = raw ? JSON.parse(raw) : []
       return new Response(JSON.stringify({ ok: true, count: subs.length, subscribers: subs }),

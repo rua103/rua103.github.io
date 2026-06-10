@@ -289,10 +289,34 @@ const shuffled = shuffle(friends)
           '<span class="text-muted-foreground text-xs shrink-0">' +
           ago +
           '</span>' +
+          '<button class="subscriber-del text-muted-foreground/40 hover:text-red-500 transition-colors text-xs shrink-0 leading-none" data-email="' +
+          escapeHtml(s.email) +
+          '" title="Remove">×</button>' +
           '</div>'
       }
       list.innerHTML = html
     }
+
+    // Delete subscriber via event delegation
+    list.addEventListener('click', function (e) {
+      var btn = e.target.closest('.subscriber-del')
+      if (!btn) return
+      var email = btn.dataset.email
+      if (!email) return
+      fetch('https://api.ru00ys-lab.com/subscribers', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email }),
+      })
+        .then(function (r) { return r.json() })
+        .then(function (d) {
+          if (!d.ok) return
+          btn.closest('.flex').remove()
+          countEl.textContent = d.count + ' subscriber' + (d.count !== 1 ? 's' : '')
+        })
+        .catch(function () {})
+    })
 
     function escapeHtml(str) {
       var div = document.createElement('div')
