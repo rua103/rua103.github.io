@@ -3,6 +3,7 @@ import { Footer, Header, ThemeProvider } from 'astro-pure/components/basic'
 import type { SiteMeta } from 'astro-pure/types'
 import BaseHead from '@/components/BaseHead.astro'
 import DarkModePopup from '@/components/DarkModePopup.astro'
+import DockMagnify from '@/components/DockMagnify.astro'
 import config from '@/site-config'
 
 // Import the global.css file here so that it is included on
@@ -84,5 +85,6 @@ const {
       }
     </style>
     <DarkModePopup />
+    <DockMagnify />
   </body>
 </html>
