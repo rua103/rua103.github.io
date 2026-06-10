@@ -1,66 +1,240 @@
-<div id="visitor-map" style="min-height:380px" class="w-full rounded-xl border bg-muted overflow-hidden relative z-0">
-  <p id="map-status" class="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm z-10">Loading map...</p>
+---
+// World base map is rendered to static SVG at build time using a simple
+// equirectangular projection. No runtime d3 / topojson / CDN dependency —
+// the outline always shows, even if the visitor data request fails.
+import worldDataRaw from './world-110m.json'
+
+// countries[country][polygon][ring][point] = [lon, lat]
+const countries = worldDataRaw as unknown as number[][][][][]
+
+const W = 1000
+const H = 500
+
+const projectX = (lon: number) => ((lon + 180) / 360) * W
+const projectY = (lat: number) => ((90 - lat) / 180) * H
+
+function buildCountryPath(country: number[][][][]): string {
+  let d = ''
+  for (const polygon of country) {
+    for (const ring of polygon) {
+      for (let i = 0; i < ring.length; i++) {
+        const x = projectX(ring[i][0]).toFixed(1)
+        const y = projectY(ring[i][1]).toFixed(1)
+        d += (i === 0 ? 'M' : 'L') + x + ',' + y
+      }
+      d += 'Z'
+    }
+  }
+  return d
+}
+
+const countryPaths = countries.map(buildCountryPath).filter((d) => d.length > 0)
+
+// Graticule (subtle reference grid) — straight lines under equirectangular.
+const meridians: number[] = []
+for (let lon = -150; lon <= 150; lon += 30) meridians.push(projectX(lon))
+const parallels: number[] = []
+for (let lat = -60; lat <= 60; lat += 30) parallels.push(projectY(lat))
+---
+
+<div class='visitor-map' aria-label='Visitor world map'>
+  <svg
+    id='visitor-world-map'
+    class='visitor-world-map'
+    viewBox={`0 0 ${W} ${H}`}
+    role='img'
+    preserveAspectRatio='xMidYMid meet'
+  >
+    <defs>
+      <linearGradient id='visitor-land-gradient' x1='0' y1='0' x2='1' y2='1'>
+        <stop offset='0%' class='visitor-land-stop-start' />
+        <stop offset='100%' class='visitor-land-stop-end' />
+      </linearGradient>
+      <radialGradient id='visitor-point-glow' cx='50%' cy='50%' r='50%'>
+        <stop offset='0%' stop-color='hsl(207, 72%, 62%)' stop-opacity='0.34' />
+        <stop offset='100%' stop-color='hsl(207, 72%, 62%)' stop-opacity='0' />
+      </radialGradient>
+    </defs>
+    <g class='visitor-map-graticule'>
+      {meridians.map((x) => <line x1={x} y1={0} x2={x} y2={H} />)}
+      {parallels.map((y) => <line x1={0} y1={y} x2={W} y2={y} />)}
+    </g>
+    <g class='visitor-map-countries'>
+      {countryPaths.map((d) => <path d={d} class='visitor-map-country' />)}
+    </g>
+    <g id='visitor-map-points'></g>
+  </svg>
+  <p id='map-status' class='visitor-map-status'>Loading visitors...</p>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script is:inline define:vars={{ W, H }}>
+  ;(function () {
+    var status = document.getElementById('map-status')
+    var pointLayer = document.getElementById('visitor-map-points')
+    if (!pointLayer) return
 
-<script is:inline>
-  (function() {
-    var script = document.createElement('script')
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-    script.onload = function() {
-      var container = document.getElementById('visitor-map')
-      if (!container) return
-      var status = document.getElementById('map-status')
+    function projectX(lon) {
+      return ((lon + 180) / 360) * W
+    }
+    function projectY(lat) {
+      return ((90 - lat) / 180) * H
+    }
 
-      var map = L.map('visitor-map', {
-        center: [20, 0], zoom: 2,
-        minZoom: 2, maxZoom: 2,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        touchZoom: false,
-        dragging: false,
-        keyboard: false,
-        zoomControl: false,
-        attributionControl: false,
+    function createSvgElement(name, attrs) {
+      var element = document.createElementNS('http://www.w3.org/2000/svg', name)
+      Object.keys(attrs || {}).forEach(function (key) {
+        element.setAttribute(key, attrs[key])
+      })
+      return element
+    }
+
+    function groupVisitors(visitors) {
+      var groups = {}
+      visitors.forEach(function (visitor) {
+        var lat = Number(visitor.lat)
+        var lon = Number(visitor.lon)
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return
+
+        var key = Math.round(lat * 2) / 2 + ',' + Math.round(lon * 2) / 2
+        if (groups[key]) {
+          groups[key].count += 1
+          return
+        }
+        groups[key] = {
+          lat: lat,
+          lon: lon,
+          city: visitor.city,
+          region: visitor.region,
+          country: visitor.country,
+          count: 1
+        }
+      })
+      return Object.keys(groups).map(function (key) {
+        return groups[key]
+      })
+    }
+
+    function setStatus(text) {
+      if (!status) return
+      if (!text) {
+        status.remove()
+        status = null
+        return
+      }
+      status.textContent = text
+    }
+
+    function drawVisitors(visitors) {
+      pointLayer.replaceChildren()
+      var groups = groupVisitors(visitors)
+      if (!groups.length) {
+        setStatus('No visitors yet.')
+        return
+      }
+
+      groups.forEach(function (visitor) {
+        var x = projectX(visitor.lon)
+        var y = projectY(visitor.lat)
+        var count = visitor.count
+        var radius = Math.min(4 + Math.sqrt(count) * 2.2, 13)
+        var label =
+          [visitor.city, visitor.region, visitor.country].filter(Boolean).join(', ') || 'Visitor'
+
+        pointLayer.appendChild(
+          createSvgElement('circle', {
+            cx: x,
+            cy: y,
+            r: radius * 3.1,
+            class: 'visitor-point-glow'
+          })
+        )
+
+        var marker = createSvgElement('circle', {
+          cx: x,
+          cy: y,
+          r: radius,
+          class: 'visitor-point'
+        })
+        var title = createSvgElement('title', {})
+        title.textContent = label + ' (' + count + ')'
+        marker.appendChild(title)
+        pointLayer.appendChild(marker)
       })
 
-      // Clean world map tiles — CartoDB Voyager (no key needed, fast CDN)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-        maxZoom: 2,
-      }).addTo(map)
-
-      fetch('https://api.ru00ys-lab.com/data')
-        .then(function(r) { return r.json() })
-        .then(function(visitors) {
-          if (!visitors.length) { status.textContent = 'No visitors yet!'; return }
-          status.remove()
-
-          var groups = {}
-          visitors.forEach(function(v) {
-            if (!v.lat) return
-            var k = Math.round(v.lat * 2) / 2 + ',' + Math.round(v.lon * 2) / 2
-            if (groups[k]) { groups[k].count++ }
-            else { groups[k] = { lat: v.lat, lon: v.lon, city: v.city, region: v.region, country: v.country, count: 1 } }
-          })
-
-          Object.values(groups).forEach(function(v) {
-            var r = Math.min(5 + v.count * 1.5, 14)
-            var label = [v.city, v.region, v.country].filter(Boolean).join(', ')
-            L.circleMarker([v.lat, v.lon], {
-              radius: r,
-              fillColor: 'hsl(207, 65%, 48%)',
-              color: '#fff',
-              weight: 1,
-              opacity: 0.9,
-              fillOpacity: 0.7,
-            })
-              .bindTooltip(label + ' (' + v.count + ')', { direction: 'top', offset: [0, -r] })
-              .addTo(map)
-          })
-        })
-        .catch(function() { status.textContent = 'Map not available.' })
+      setStatus('')
     }
-    document.head.appendChild(script)
+
+    fetch('https://api.ru00ys-lab.com/data', { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Visitor data failed')
+        return response.json()
+      })
+      .then(function (data) {
+        drawVisitors(Array.isArray(data) ? data : [])
+      })
+      .catch(function () {
+        // Base map still shows; just clear the loading hint.
+        setStatus('')
+      })
   })()
 </script>
+
+<style>
+  .visitor-map {
+    position: relative;
+    width: 100%;
+  }
+
+  .visitor-world-map {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .visitor-map-graticule line {
+    stroke: hsl(var(--muted-foreground) / 0.12);
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .visitor-land-stop-start {
+    stop-color: hsl(var(--primary));
+  }
+
+  .visitor-land-stop-end {
+    stop-color: hsl(200 80% 70%);
+  }
+
+  .visitor-map-country {
+    fill: url(#visitor-land-gradient);
+    fill-opacity: 0.75;
+    stroke: hsl(var(--background));
+    stroke-width: 0.85;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .visitor-point-glow {
+    fill: url(#visitor-point-glow);
+    pointer-events: none;
+  }
+
+  .visitor-point {
+    fill: hsl(207, 72%, 48%);
+    fill-opacity: 0.82;
+    stroke: hsl(var(--background));
+    stroke-width: 1.8;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .visitor-map-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    pointer-events: none;
+  }
+</style>

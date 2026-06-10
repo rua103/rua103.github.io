@@ -214,64 +214,6 @@ const shuffled = shuffle(friends)
     }
   })
 
-  // Visitor map lazy loading. The third-party script can be slow, so keep it
-  // isolated from the main document and avoid loading it for ignored browsers.
-  const visitorIgnoreKey = 'ru00y:ignore-visits'
-  const visitorMapFrame = document.getElementById('visitor-map-frame') as HTMLIFrameElement
-  const visitorMapStatus = document.getElementById('visitor-map-status') as HTMLElement
-
-  function shouldIgnoreVisits() {
-    try {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('ignore_visits') === '1') localStorage.setItem(visitorIgnoreKey, '1')
-      if (params.get('ignore_visits') === '0') localStorage.removeItem(visitorIgnoreKey)
-
-      const hostname = window.location.hostname
-      const isLocal =
-        hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
-
-      if (isLocal) return true
-      return localStorage.getItem(visitorIgnoreKey) === '1'
-    } catch {
-      return true
-    }
-  }
-
-  function loadVisitorMap() {
-    if (!visitorMapFrame || visitorMapFrame.dataset.loaded === 'true') return
-
-    if (shouldIgnoreVisits()) {
-      visitorMapStatus.textContent = 'Visitor map is hidden for this browser.'
-      return
-    }
-
-    const srcdoc = visitorMapFrame.dataset.srcdoc
-    if (!srcdoc) return
-
-    visitorMapFrame.dataset.loaded = 'true'
-    visitorMapStatus.textContent = 'Loading visitor map...'
-    visitorMapFrame.srcdoc = srcdoc
-
-    window.setTimeout(() => {
-      if (visitorMapStatus.textContent === 'Loading visitor map...') {
-        visitorMapStatus.textContent = 'Still waiting on mapmyvisitors.com.'
-      }
-    }, 8000)
-  }
-
-  if ('IntersectionObserver' in window && visitorMapFrame) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return
-        observer.disconnect()
-        loadVisitorMap()
-      },
-      { rootMargin: '200px' }
-    )
-    observer.observe(visitorMapFrame)
-  } else {
-    loadVisitorMap()
-  }
 </script>
 
 <style>
