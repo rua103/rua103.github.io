@@ -32,8 +32,10 @@ import PageLayout from '@/layouts/BaseLayout.astro'
             placeholder="Enter your email"
             class="w-full h-11 rounded-lg border bg-background px-4 text-sm outline-none focus:border-primary transition-colors"
           />
+          <p id="email-error" class="hidden text-red-500 text-xs mt-1.5 text-center"></p>
           <button
             type="submit"
+            id="subscribe-btn"
             class="w-full h-11 mt-4 rounded-lg bg-foreground text-background font-semibold text-sm hover:opacity-85 transition-opacity"
           >
             Subscribe
@@ -48,6 +50,33 @@ import PageLayout from '@/layouts/BaseLayout.astro'
     </div>
   </main>
 </PageLayout>
+
+<script>
+  const form = document.querySelector('form')
+  const emailInput = document.getElementById('email') as HTMLInputElement
+  const errorEl = document.getElementById('email-error') as HTMLElement
+
+  form?.addEventListener('submit', (e) => {
+    errorEl.classList.add('hidden')
+    emailInput.classList.remove('border-red-500')
+
+    if (!emailInput.value.trim()) {
+      e.preventDefault()
+      errorEl.textContent = 'Please enter your email address.'
+      errorEl.classList.remove('hidden')
+      emailInput.classList.add('border-red-500')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+      e.preventDefault()
+      errorEl.textContent = 'Hmm, that email address doesn\'t look right — mind checking it?'
+      errorEl.classList.remove('hidden')
+      emailInput.classList.add('border-red-500')
+      return
+    }
+  })
+</script>
 
 <style>
   .gradient-text {
