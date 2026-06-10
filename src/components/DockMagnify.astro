@@ -1,7 +1,7 @@
 <script>
   const MAX_SCALE = 1.12
-  const MIN_SCALE = 0.95
-  const RADIUS = 350
+  const MIN_SCALE = 0.97
+  const RADIUS = 180
   const ITEMS = '.bg-muted'
 
   function magnify(e: MouseEvent) {
@@ -18,17 +18,18 @@
       const t = Math.max(0, 1 - dist / RADIUS)
 
       // Closer → magnify, farther → subtly shrink
-      const scale = t > 0.05
-        ? 1 + (MAX_SCALE - 1) * (t * t * t)
+      // Power of 5 for sharp peak — only the card under cursor really pops
+      const scale = t > 0.1
+        ? 1 + (MAX_SCALE - 1) * Math.pow(t, 5)
         : MIN_SCALE
 
       const shadow = 8 + 32 * t * t
 
       // Brightness & border: brighter when hit, dim when far
-      const brightness = t > 0.05
-        ? 1 + 0.1 * t          // slightly brighter — "hit" feel
-        : 0.85                  // dim background cards
-      const borderAlpha = t > 0.05
+      const brightness = t > 0.1
+        ? 1 + 0.12 * t
+        : 0.88
+      const borderAlpha = t > 0.1
         ? 0.18 + 0.5 * t       // border glows on hit
         : 0.18
 
