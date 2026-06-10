@@ -109,13 +109,14 @@ a {
   pointer-events: none;
 }
 
-/* Drop cap — newspaper-style first letter on blog posts */
+/* Drop cap — understated first letter on blog posts */
 article #content > p:first-of-type::first-letter {
   float: left;
-  font-size: 4.2rem;
-  font-weight: 700;
-  line-height: 0.75;
-  margin-right: 0.55rem;
-  padding-top: 0.08rem;
-  color: hsl(var(--primary));
+  font-size: 3.2rem;
+  font-weight: 600;
+  line-height: 0.8;
+  margin-right: 0.45rem;
+  margin-top: 0.12rem;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
 }
