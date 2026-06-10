@@ -8,7 +8,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
       <div class='text-center'>
         <h1 class='text-3xl font-bold gradient-text mb-2'>Subscribe</h1>
         <p class='text-muted-foreground'>
-          Get new posts delivered to your inbox ♪
+          Get new posts delivered to your inbox
         </p>
       </div>
 
@@ -17,6 +17,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
           action="https://api.follow.it/subscription-form/NGxBMDlLU3o3MGZPNnRpZXJJNWcwaDIwTlhnYzJXaWQrUysycGpDY2hYRTZJOWR3VXVzOU9EUUVwTFY4dnJoZnpCN2RCV3NlVGlIU3lKekhLNTdJK3FJUmRobUo2SlJIbGw5SEtBY0lKdVl4ZE1yYW93VXAxR283K3VKUkk4cVd8VXRyRVlBTG52ZWRCTGptZ2VsREUzcWYxcEt4ZWs2L2c5cXFLRU9NOGE1VT0=/8"
           method="post"
           target="_blank"
+          novalidate
         >
           <label
             for="email"
@@ -29,6 +30,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
             name="email"
             id="email"
             required
+            aria-describedby="email-error"
             placeholder="Enter your email"
             class="w-full h-11 rounded-lg border bg-background px-4 text-sm outline-none focus:border-primary transition-colors"
           />
@@ -70,7 +72,7 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
       e.preventDefault()
-      errorEl.textContent = 'Hmm, that email address doesn\'t look right — mind checking it?'
+      errorEl.textContent = 'Please enter a valid email address.'
       errorEl.classList.remove('hidden')
       emailInput.classList.add('border-red-500')
       return
