@@ -1,9 +1,8 @@
-<div id="visitor-map" style="min-height:280px" class="w-full h-72 rounded-xl border bg-muted overflow-hidden z-0">
-  <p class="flex items-center justify-center h-full text-muted-foreground text-sm">Loading map...</p>
+<div id="visitor-map" style="min-height:380px" class="w-full rounded-xl border bg-muted overflow-hidden z-0 relative">
+  <p id="map-loading" class="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm z-10 pointer-events-none">Loading map...</p>
 </div>
 
 <script>
-  // Track this visit
   fetch('https://api.ru00ys-lab.com/track', { method: 'GET' }).catch(() => {})
 </script>
 
@@ -14,31 +13,36 @@
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
     document.head.appendChild(link)
 
-    var script = document.createElement('script')
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-    script.onload = function() {
+    var s = document.createElement('script')
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+    s.onload = function() {
       var container = document.getElementById('visitor-map')
       if (!container) return
 
       var map = L.map('visitor-map', {
-        center: [20, 0],
+        center: [15, 0],
         zoom: 2,
+        minZoom: 2,
+        maxZoom: 18,
         scrollWheelZoom: false,
-        zoomControl: false,
-        attributionControl: false,
+        zoomControl: true,
+        zoomControlOptions: { position: 'bottomright' },
       })
 
+      // English labels, clean light style
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19,
       }).addTo(map)
+
+      // Remove loading text
+      var loading = document.getElementById('map-loading')
+      if (loading) loading.remove()
 
       fetch('https://api.ru00ys-lab.com/data')
         .then(function(r) { return r.json() })
         .then(function(visitors) {
-          if (!visitors.length) {
-            container.querySelector('p').textContent = 'No visitors yet!'
-            return
-          }
+          if (!visitors.length) return
 
           var markers = []
           visitors.forEach(function(v) {
@@ -49,8 +53,6 @@
             else { markers.push({ key: key, lat: v.lat, lon: v.lon, city: v.city, country: v.country, count: 1 }) }
           })
 
-          container.querySelector('p').remove()
-
           markers.forEach(function(m) {
             var radius = Math.min(4 + m.count * 2, 14)
             var label = m.city ? m.city + ', ' + m.country : m.country
@@ -60,23 +62,14 @@
               color: 'hsl(207, 60%, 42%)',
               weight: 1,
               opacity: 0.6,
-              fillOpacity: 0.35,
+              fillOpacity: 0.4,
             })
               .bindTooltip(label + ' (' + m.count + ')', { direction: 'top', offset: [0, -radius] })
               .addTo(map)
           })
-
-          if (markers.length === 1) {
-            map.setView([markers[0].lat, markers[0].lon], 6)
-          } else if (markers.length > 1) {
-            var bounds = L.latLngBounds(markers.map(function(m) { return [m.lat, m.lon] }))
-            map.fitBounds(bounds.pad(0.3))
-          }
         })
-        .catch(function() {
-          container.querySelector('p').textContent = 'Map data not available right now.'
-        })
+        .catch(function() {})
     }
-    document.head.appendChild(script)
+    document.head.appendChild(s)
   })()
 </script>
