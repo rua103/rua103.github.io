@@ -44,12 +44,19 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url)
     const secret = env.COOKIE_SECRET
-    const cors = {
-      'Access-Control-Allow-Origin': 'https://ru00ys-lab.com',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Credentials': 'true',
+    function corsHeaders(methods = 'GET, OPTIONS') {
+      return {
+        'Access-Control-Allow-Origin': 'https://ru00ys-lab.com',
+        'Access-Control-Allow-Methods': methods,
+        'Access-Control-Allow-Credentials': 'true',
+      }
     }
-    if (request.method === 'OPTIONS') return new Response(null, { headers: cors })
+    if (request.method === 'OPTIONS') {
+      const allowHeaders = url.pathname === '/subscribe' ? 'Content-Type' : ''
+      const h = corsHeaders(allowHeaders ? 'GET, POST, OPTIONS' : 'GET, OPTIONS')
+      if (allowHeaders) h['Access-Control-Allow-Headers'] = allowHeaders
+      return new Response(null, { headers: h })
+    }
 
     // /login → redirect to GitHub
     if (url.pathname === '/login') {
@@ -100,7 +107,7 @@ export default {
 
       const sig = await hmac(String(user.id), secret)
       const val = user.id + ':' + sig
-      return redirect('https://ru00ys-lab.com/?auth=ok', [
+      return redirect('https://ru00ys-lab.com/connect?auth=ok', [
         cookieStr(OWNER_COOKIE, val),
         cookieStr(STATE_COOKIE, '', 0),
       ])
@@ -111,7 +118,7 @@ export default {
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
       const ok = Boolean(uid && sig && (await hmac(uid, secret)) === sig)
-      return new Response(JSON.stringify({ ok }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+      return new Response(JSON.stringify({ ok }), { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
     }
 
     // /track — record (skip owner)
@@ -119,7 +126,7 @@ export default {
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
       if (uid && sig && (await hmac(uid, secret)) === sig) {
-        return new Response('ok', { headers: cors })
+        return new Response('ok', { headers: corsHeaders() })
       }
 
       const cf = request.cf || {}
@@ -129,7 +136,7 @@ export default {
         ip, city: cf.city || null, region: cf.region || null, country: cf.country || null,
         lat: cf.latitude || null, lon: cf.longitude || null, date: today, time: Date.now(),
       }
-      if (!entry.country) return new Response('ok', { headers: cors })
+      if (!entry.country) return new Response('ok', { headers: corsHeaders() })
 
       let raw = await env.VISITORS.get('data')
       let visitors = raw ? JSON.parse(raw) : []
@@ -144,16 +151,54 @@ export default {
       }))
       await env.VISITORS.put('data', JSON.stringify(visitors))
       await env.VISITORS.put('public', JSON.stringify(rounded))
-      return new Response('ok', { headers: cors })
+      return new Response('ok', { headers: corsHeaders() })
+    }
+
+    // /subscribe — mirror email to KV for owner dashboard
+    if (url.pathname === '/subscribe' && request.method === 'POST') {
+      try {
+        const { email } = await request.json()
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return new Response(JSON.stringify({ ok: false, error: 'Invalid email' }),
+            { status: 400, headers: { ...corsHeaders('POST, OPTIONS'), 'Content-Type': 'application/json' } })
+        }
+        let raw = await env.VISITORS.get('subscribers')
+        let subs = raw ? JSON.parse(raw) : []
+        if (!subs.find(s => s.email === email)) {
+          subs.push({ email, time: Date.now() })
+          if (subs.length > 1000) subs = subs.slice(-1000)
+          await env.VISITORS.put('subscribers', JSON.stringify(subs))
+        }
+        return new Response(JSON.stringify({ ok: true }),
+          { headers: { ...corsHeaders('POST, OPTIONS'), 'Content-Type': 'application/json' } })
+      } catch {
+        return new Response(JSON.stringify({ ok: false }), { status: 400,
+          headers: { ...corsHeaders('POST, OPTIONS'), 'Content-Type': 'application/json' } })
+      }
     }
 
     // /data
     if (url.pathname === '/data') {
       const raw = await env.VISITORS.get('public')
-      if (!raw) return new Response('[]', { headers: { ...cors, 'Content-Type': 'application/json' } })
-      return new Response(raw, { headers: { ...cors, 'Content-Type': 'application/json' } })
+      if (!raw) return new Response('[]', { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+      return new Response(raw, { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
     }
 
-    return new Response('Not found', { status: 404, headers: cors })
+    // /subscribers — owner-only subscriber list
+    if (url.pathname === '/subscribers') {
+      const cookie = request.headers.get('Cookie') || ''
+      const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
+      const isOwner = Boolean(uid && sig && (await hmac(uid, secret)) === sig)
+      if (!isOwner) {
+        return new Response(JSON.stringify({ ok: false }),
+          { status: 403, headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+      }
+      const raw = await env.VISITORS.get('subscribers')
+      const subs = raw ? JSON.parse(raw) : []
+      return new Response(JSON.stringify({ ok: true, count: subs.length, subscribers: subs }),
+        { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+    }
+
+    return new Response('Not found', { status: 404, headers: corsHeaders() })
   },
 }

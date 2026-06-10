@@ -38,7 +38,10 @@ const shuffled = shuffle(friends)
 
       <!-- Subscribe -->
       <section>
-        <h2 class='text-xl font-semibold text-foreground mb-2'>Subscribe</h2>
+        <h2 class='text-xl font-semibold text-foreground mb-2'>
+          Subscribe
+          <a href="https://api.ru00ys-lab.com/login" class="text-muted-foreground/20 hover:text-primary transition-colors text-xs ml-1.5 align-middle select-none" title="Owner" tabindex="-1">🔒</a>
+        </h2>
         <p class='text-muted-foreground text-sm mb-4'>Get new posts delivered to your inbox.</p>
         <form
           action="https://api.follow.it/subscription-form/NGxBMDlLU3o3MGZPNnRpZXJJNWcwaDIwTlhnYzJXaWQrUysycGpDY2hYRTZJOWR3VXVzOU9EUUVwTFY4dnJoZnpCN2RCV3NlVGlIU3lKekhLNTdJK3FJUmRobUo2SlJIbGw5SEtBY0lKdVl4ZE1yYW93VXAxR283K3VKUkk4cVd8VXRyRVlBTG52ZWRCTGptZ2VsREUzcWYxcEt4ZWs2L2c5cXFLRU9NOGE1VT0=/8"
@@ -67,6 +70,20 @@ const shuffled = shuffle(friends)
         <p class="text-muted-foreground text-xs mt-2">
           Powered by <a href="https://follow.it" class="underline" target="_blank">follow.it</a>
         </p>
+
+        <!-- Owner-only subscriber panel -->
+        <div id="subscriber-panel" class="hidden mt-6">
+          <div class="rounded-xl border bg-muted p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold text-foreground">Subscribers</h3>
+              <span id="subscriber-count" class="text-sm text-muted-foreground"></span>
+            </div>
+            <div id="subscriber-list" class="divide-y divide-border text-sm"></div>
+            <p class="text-muted-foreground text-xs mt-3">
+              Open <a href="https://follow.it/publisher/dashboard" class="underline" target="_blank">follow.it dashboard</a> to manage emails
+            </p>
+          </div>
+        </div>
       </section>
 
       <!-- Visitor Map -->
@@ -212,8 +229,88 @@ const shuffled = shuffle(friends)
       emailInput.classList.add('border-red-500')
       return
     }
+
+    // Dual-submit mirror to Worker for owner dashboard
+    fetch('https://api.ru00ys-lab.com/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailInput.value.trim() }),
+    }).catch(() => {})
   })
 
+</script>
+
+<script is:inline>
+  // Owner auth & subscriber panel
+  ;(function () {
+    const panel = document.getElementById('subscriber-panel')
+    const list = document.getElementById('subscriber-list')
+    const countEl = document.getElementById('subscriber-count')
+    if (!panel || !list || !countEl) return
+
+    const params = new URLSearchParams(window.location.search)
+    const auth = params.get('auth')
+
+    if (auth) {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+
+    if (auth !== 'ok') return
+
+    fetch('https://api.ru00ys-lab.com/me', { credentials: 'include' })
+      .then(function (r) { return r.json() })
+      .then(function (d) {
+        if (!d.ok) return
+        return fetch('https://api.ru00ys-lab.com/subscribers', { credentials: 'include' })
+          .then(function (r) { return r.json() })
+          .then(function (data) {
+            if (!data.ok) return
+            render(data.subscribers, data.count)
+          })
+      })
+      .catch(function () {})
+
+    function render(subscribers, count) {
+      panel.classList.remove('hidden')
+      countEl.textContent = count + ' subscriber' + (count !== 1 ? 's' : '')
+
+      if (!subscribers.length) {
+        list.innerHTML =
+          '<div class="py-3 text-muted-foreground text-center">No subscribers yet.</div>'
+        return
+      }
+
+      var html = ''
+      var formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
+      for (var i = 0; i < subscribers.length; i++) {
+        var s = subscribers[i]
+        var ago = ''
+        if (s.time) {
+          var diff = Math.round((Date.now() - s.time) / 1000)
+          if (diff < 60) ago = 'just now'
+          else if (diff < 3600) ago = formatter.format(-Math.round(diff / 60), 'minute')
+          else if (diff < 86400) ago = formatter.format(-Math.round(diff / 3600), 'hour')
+          else ago = formatter.format(-Math.round(diff / 86400), 'day')
+        }
+        html +=
+          '<div class="flex items-center gap-x-3 py-2.5">' +
+          '<span class="font-mono text-xs text-foreground flex-1 truncate">' +
+          escapeHtml(s.email) +
+          '</span>' +
+          '<span class="text-muted-foreground text-xs shrink-0">' +
+          ago +
+          '</span>' +
+          '</div>'
+      }
+      list.innerHTML = html
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div')
+      div.textContent = str
+      return div.innerHTML
+    }
+  })()
 </script>
 
 <style>
