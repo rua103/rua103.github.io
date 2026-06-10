@@ -8,7 +8,7 @@ interface Props {
 const { class: className } = Astro.props
 ---
 
-<div id='giscus-comment' class={cn('not-prose', className)}>
+<div id='giscus-comment' class={cn('giscus', 'not-prose', className)}>
   <p class='text-muted-foreground text-sm'>Loading comments...</p>
 </div>
 
@@ -30,3 +30,10 @@ const { class: className } = Astro.props
   script.async = true
   document.getElementById('giscus-comment')!.appendChild(script)
 </script>
+
+<style>
+  /* Giscus full-width */
+  .giscus, .giscus-frame {
+    width: 100% !important;
+  }
+</style>
