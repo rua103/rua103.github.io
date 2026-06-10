@@ -70,13 +70,6 @@ if (!images[imagePath])
       </div>
     </section>
 
-    <!-- Dark mode tip -->
-    <div id='dark-tip' class='animate mb-10 flex items-center gap-x-2 rounded-full border bg-muted px-4 py-2 text-sm text-muted-foreground opacity-0 transition-opacity duration-500'>
-      <svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor' class='shrink-0'><path d='M12.477 4.546a1.01 1.01 0 0 1 1.097-1.409A9 9 0 0 1 12 21c-4.434 0-8.118-3.206-8.863-7.426a1.01 1.01 0 0 1 1.409-1.097a6 6 0 0 0 7.931-7.931m2.404 1.072a8 8 0 0 1-9.263 9.263A7.002 7.002 0 0 0 19 12.001a7 7 0 0 0-4.12-6.383Z'/></svg>
-      Best experienced in dark mode —
-      <button id='switch-dark' class='highlight font-medium'>give it a try?</button>
-    </div>
-
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
       <Section title='✦ About'>
         <div class='mio-quote mb-2'>"Don't say lazy" — Akiyama Mio ♪</div>
@@ -162,36 +155,6 @@ if (!images[imagePath])
     <Quote class='mt-12' />
   </main>
 </PageLayout>
-
-<script>
-  const tip = document.getElementById('dark-tip') as HTMLElement
-  const switchBtn = document.getElementById('switch-dark') as HTMLElement
-
-  if (tip && switchBtn) {
-    // Only show in light mode
-    const theme = localStorage.getItem('theme') || 'system'
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    if (!isDark) {
-      setTimeout(() => { tip.classList.remove('opacity-0') }, 400)
-    }
-
-    switchBtn.addEventListener('click', () => {
-      localStorage.setItem('theme', 'dark')
-      document.dispatchEvent(new CustomEvent('theme-change', { detail: { theme: 'dark' } }))
-      tip.classList.add('opacity-0')
-      // Fallback: add dark class directly
-      document.documentElement.classList.add('dark')
-    })
-
-    // Hide tip once dark mode is on
-    const observer = new MutationObserver(() => {
-      if (document.documentElement.classList.contains('dark')) {
-        tip.classList.add('opacity-0')
-      }
-    })
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-  }
-</script>
 
 <style>
   .gradient-text {

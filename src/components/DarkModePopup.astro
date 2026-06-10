@@ -1,0 +1,78 @@
+<div
+  id='dark-popup-overlay'
+  class='fixed inset-0 z-[999] flex items-center justify-center bg-background/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300'
+>
+  <div class='mx-4 w-full max-w-sm rounded-2xl border bg-muted p-6 shadow-2xl text-center'>
+    <svg width='40' height='40' viewBox='0 0 24 24' fill='currentColor' class='mx-auto mb-4 text-primary'>
+      <path d='M12.477 4.546a1.01 1.01 0 0 1 1.097-1.409A9 9 0 0 1 12 21c-4.434 0-8.118-3.206-8.863-7.426a1.01 1.01 0 0 1 1.409-1.097a6 6 0 0 0 7.931-7.931m2.404 1.072a8 8 0 0 1-9.263 9.263A7.002 7.002 0 0 0 19 12.001a7 7 0 0 0-4.12-6.383Z'/>
+    </svg>
+    <h2 class='text-lg font-semibold text-foreground mb-2'>Best in the dark?</h2>
+    <p class='text-muted-foreground text-sm mb-5'>
+      This site looks its best in dark mode. Give it a try!
+    </p>
+    <div class='flex gap-x-3 justify-center'>
+      <button
+        id='dark-popup-yes'
+        class='rounded-lg bg-foreground text-background px-5 py-2 text-sm font-medium hover:opacity-85 transition-opacity'
+      >
+        Switch to dark
+      </button>
+      <button
+        id='dark-popup-no'
+        class='rounded-lg border px-5 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors'
+      >
+        Not now
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const KEY = 'dark-popup-dismissed'
+
+  function showPopup() {
+    const overlay = document.getElementById('dark-popup-overlay') as HTMLElement
+    if (!overlay) return
+    overlay.classList.remove('opacity-0', 'pointer-events-none')
+    overlay.classList.add('opacity-100')
+  }
+
+  function hidePopup() {
+    const overlay = document.getElementById('dark-popup-overlay') as HTMLElement
+    if (!overlay) return
+    overlay.classList.add('opacity-0', 'pointer-events-none')
+    overlay.classList.remove('opacity-100')
+  }
+
+  // Check if we should show
+  const dismissed = localStorage.getItem(KEY)
+  const theme = localStorage.getItem('theme') || 'system'
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  if (!dismissed && !isDark) {
+    // Delay so page renders first
+    setTimeout(showPopup, 800)
+  }
+
+  // Yes -> switch to dark
+  document.getElementById('dark-popup-yes')?.addEventListener('click', () => {
+    localStorage.setItem('theme', 'dark')
+    document.documentElement.classList.add('dark')
+    localStorage.setItem(KEY, '1')
+    hidePopup()
+  })
+
+  // No -> dismiss
+  document.getElementById('dark-popup-no')?.addEventListener('click', () => {
+    localStorage.setItem(KEY, '1')
+    hidePopup()
+  })
+
+  // Click overlay to dismiss
+  document.getElementById('dark-popup-overlay')?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).id === 'dark-popup-overlay') {
+      localStorage.setItem(KEY, '1')
+      hidePopup()
+    }
+  })
+</script>
