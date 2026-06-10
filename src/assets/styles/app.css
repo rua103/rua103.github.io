@@ -69,6 +69,12 @@ a {
   border: 1px solid hsl(var(--border) / 0.18);
   border-top: 1px solid hsl(var(--border) / 0.25);
   box-shadow: 0 8px 32px hsl(var(--background) / 0.08);
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
+              box-shadow 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.bg-muted:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 40px hsl(var(--background) / 0.15);
 }
 
 .card-shadow {
