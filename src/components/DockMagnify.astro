@@ -42,5 +42,8 @@
     })
   }
 
-  document.addEventListener('mousemove', magnify, { passive: true })
+  // Only on devices with a mouse — skip touch/mobile
+  if (window.matchMedia('(pointer: fine) and (hover: hover)').matches) {
+    document.addEventListener('mousemove', magnify, { passive: true })
+  }
 </script>
