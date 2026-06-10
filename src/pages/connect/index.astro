@@ -90,11 +90,18 @@ import friends from '../../data/friends.json'
         <p class='text-muted-foreground text-sm mb-4'>
           Add my site to your friends list first, then <a href='mailto:fuhanying2710031@outlook.com' class='highlight'>send me an email</a> with your info.
         </p>
-        <div class='rounded-xl border bg-muted p-5 font-mono text-sm text-muted-foreground whitespace-pre-line leading-relaxed'>
-          Name:  Ru00y's Lab
-          Link:  https://ru00ys-lab.com/
-          Bio:   <!-- Write your short bio here -->
-          Avatar: https://ru00ys-lab.com/favicon/favicon.png
+        <div class='rounded-xl border bg-muted p-5 flex flex-col sm:flex-row items-center gap-x-5 gap-y-3'>
+          <img
+            src='/favicon/favicon.png'
+            alt="Ru00y's Lab avatar"
+            class='size-16 rounded-full shrink-0 border-2 border-border'
+          />
+          <div class='font-mono text-sm text-muted-foreground whitespace-pre-line leading-relaxed min-w-0'>
+            Name:  Ru00y's Lab
+            Link:  https://ru00ys-lab.com/
+            Bio:   Licensed to Wander
+            Avatar: <a href='https://ru00ys-lab.com/favicon/favicon.png' class='highlight text-xs break-all'>https://ru00ys-lab.com/favicon/favicon.png</a>
+          </div>
         </div>
       </section>
     </div>
