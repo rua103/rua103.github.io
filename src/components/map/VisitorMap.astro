@@ -1,4 +1,4 @@
-<div id="visitor-map" style="min-height:380px" class="w-full rounded-xl border bg-muted overflow-hidden z-0 relative">
+<div id="visitor-map" style="min-height:420px" class="w-full rounded-xl border bg-muted overflow-hidden z-0 relative">
   <p id="map-loading" class="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm z-10 pointer-events-none">Loading map...</p>
 </div>
 
@@ -29,9 +29,9 @@
         zoomControlOptions: { position: 'bottomright' },
       })
 
-      // English labels, clean light style
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      // Standard world map with English labels
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       }).addTo(map)
 
