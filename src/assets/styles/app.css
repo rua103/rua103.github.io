@@ -8,7 +8,7 @@
   --primary: 207 60% 42%;
   --foreground: 220 30% 15%;
   --muted-foreground: 215 15% 45%;
-  --background: 210 40% 98%;
+  --background: 210 40% 99%;
   --muted: 210 25% 93%;
   --card: 0 0% 100%;
   --border: 210 20% 85%;
@@ -22,11 +22,11 @@
   --primary: 207 65% 55%;
   --foreground: 210 40% 98%;
   --muted-foreground: 215 20% 70%;
-  --background: 220 25% 6%;
-  --muted: 220 20% 12%;
-  --card: 220 25% 9%;
-  --border: 220 20% 18%;
-  --input: 220 20% 16%;
+  --background: 220 25% 8%;
+  --muted: 220 20% 16%;
+  --card: 220 25% 12%;
+  --border: 220 20% 22%;
+  --input: 220 20% 20%;
   --ring: 207 65% 55%;
 }
 
