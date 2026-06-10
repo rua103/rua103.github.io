@@ -38,34 +38,33 @@ const shuffled = shuffle(friends)
       <section>
         <h2 class='text-xl font-semibold text-foreground mb-2'>Subscribe</h2>
         <p class='text-muted-foreground text-sm mb-4'>Get new posts delivered to your inbox.</p>
-        <div class='rounded-2xl border bg-muted p-4 max-w-md'>
-          <form
-            action="https://api.follow.it/subscription-form/NGxBMDlLU3o3MGZPNnRpZXJJNWcwaDIwTlhnYzJXaWQrUysycGpDY2hYRTZJOWR3VXVzOU9EUUVwTFY4dnJoZnpCN2RCV3NlVGlIU3lKekhLNTdJK3FJUmRobUo2SlJIbGw5SEtBY0lKdVl4ZE1yYW93VXAxR283K3VKUkk4cVd8VXRyRVlBTG52ZWRCTGptZ2VsREUzcWYxcEt4ZWs2L2c5cXFLRU9NOGE1VT0=/8"
-            method="post"
-            target="_blank"
-            novalidate
+        <form
+          action="https://api.follow.it/subscription-form/NGxBMDlLU3o3MGZPNnRpZXJJNWcwaDIwTlhnYzJXaWQrUysycGpDY2hYRTZJOWR3VXVzOU9EUUVwTFY4dnJoZnpCN2RCV3NlVGlIU3lKekhLNTdJK3FJUmRobUo2SlJIbGw5SEtBY0lKdVl4ZE1yYW93VXAxR283K3VKUkk4cVd8VXRyRVlBTG52ZWRCTGptZ2VsREUzcWYxcEt4ZWs2L2c5cXFLRU9NOGE1VT0=/8"
+          method="post"
+          target="_blank"
+          novalidate
+          class='flex items-stretch gap-x-3'
+        >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            aria-describedby="email-error"
+            placeholder="Enter your email"
+            class="flex-1 h-11 rounded-xl border bg-muted px-4 text-sm outline-none focus:border-primary transition-colors"
+          />
+          <button
+            type="submit"
+            class="h-11 rounded-xl bg-foreground text-background font-semibold text-sm px-6 hover:opacity-85 transition-opacity whitespace-nowrap"
           >
-            <input
-              type="email"
-              name="email"
-              id="email"
-              required
-              aria-describedby="email-error"
-              placeholder="Enter your email"
-              class="w-full h-9 rounded-lg border bg-background px-3 text-sm outline-none focus:border-primary transition-colors"
-            />
-            <p id="email-error" class="hidden text-red-500 text-xs mt-1"></p>
-            <button
-              type="submit"
-              class="w-full h-9 mt-2 rounded-lg bg-foreground text-background font-semibold text-sm hover:opacity-85 transition-opacity"
-            >
-              Subscribe
-            </button>
-          </form>
-          <p class="text-muted-foreground text-[11px] text-center mt-2">
-            Powered by <a href="https://follow.it" class="underline" target="_blank">follow.it</a>
-          </p>
-        </div>
+            Subscribe
+          </button>
+        </form>
+        <p id="email-error" class="hidden text-red-500 text-xs mt-1.5"></p>
+        <p class="text-muted-foreground text-xs mt-2">
+          Powered by <a href="https://follow.it" class="underline" target="_blank">follow.it</a>
+        </p>
       </section>
 
       <!-- Friends Grid -->
