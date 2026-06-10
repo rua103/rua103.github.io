@@ -28,7 +28,8 @@
 </div>
 
 <script>
-  const KEY = 'dark-popup-dismissed'
+  const DISMISS_KEY = 'dark-popup-dismissed'
+  const TAB_COUNT_KEY = 'dark-popup-tabs'
 
   function showPopup() {
     const overlay = document.getElementById('dark-popup-overlay') as HTMLElement
@@ -44,8 +45,38 @@
     overlay.classList.remove('opacity-100')
   }
 
-  // sessionStorage: lives per-tab, cleared when tab closes
-  const dismissed = sessionStorage.getItem(KEY)
+  function dismiss() {
+    localStorage.setItem(DISMISS_KEY, '1')
+    hidePopup()
+  }
+
+  // Track open tabs
+  const count = Number(localStorage.getItem(TAB_COUNT_KEY) || 0) + 1
+  localStorage.setItem(TAB_COUNT_KEY, String(count))
+
+  window.addEventListener('beforeunload', () => {
+    const remaining = Number(localStorage.getItem(TAB_COUNT_KEY) || 1) - 1
+    if (remaining <= 0) {
+      // Last tab closed → reset
+      localStorage.removeItem(TAB_COUNT_KEY)
+      localStorage.removeItem(DISMISS_KEY)
+    } else {
+      localStorage.setItem(TAB_COUNT_KEY, String(remaining))
+    }
+  })
+
+  // Also cleanup on pagehide (handles mobile/bfcache)
+  window.addEventListener('pagehide', () => {
+    const remaining = Number(localStorage.getItem(TAB_COUNT_KEY) || 1) - 1
+    if (remaining <= 0) {
+      localStorage.removeItem(TAB_COUNT_KEY)
+      localStorage.removeItem(DISMISS_KEY)
+    } else {
+      localStorage.setItem(TAB_COUNT_KEY, String(remaining))
+    }
+  })
+
+  const dismissed = localStorage.getItem(DISMISS_KEY)
   const theme = localStorage.getItem('theme') || 'system'
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
@@ -53,25 +84,15 @@
     setTimeout(showPopup, 800)
   }
 
-  // Yes -> switch to dark
   document.getElementById('dark-popup-yes')?.addEventListener('click', () => {
     localStorage.setItem('theme', 'dark')
     document.documentElement.classList.add('dark')
-    sessionStorage.setItem(KEY, '1')
-    hidePopup()
+    dismiss()
   })
 
-  // No -> dismiss
-  document.getElementById('dark-popup-no')?.addEventListener('click', () => {
-    sessionStorage.setItem(KEY, '1')
-    hidePopup()
-  })
+  document.getElementById('dark-popup-no')?.addEventListener('click', dismiss)
 
-  // Click overlay to dismiss
   document.getElementById('dark-popup-overlay')?.addEventListener('click', (e) => {
-    if ((e.target as HTMLElement).id === 'dark-popup-overlay') {
-      sessionStorage.setItem(KEY, '1')
-      hidePopup()
-    }
+    if ((e.target as HTMLElement).id === 'dark-popup-overlay') dismiss()
   })
 </script>
