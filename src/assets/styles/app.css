@@ -108,3 +108,14 @@ a {
   background: linear-gradient(to top, hsl(var(--background)) 0%, transparent 60%);
   pointer-events: none;
 }
+
+/* Drop cap — newspaper-style first letter on blog posts */
+article #content > p:first-of-type::first-letter {
+  float: left;
+  font-size: 4.2rem;
+  font-weight: 700;
+  line-height: 0.75;
+  margin-right: 0.55rem;
+  padding-top: 0.08rem;
+  color: hsl(var(--primary));
+}

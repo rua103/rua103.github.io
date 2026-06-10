@@ -78,18 +78,3 @@ const primaryColor = data.heroImage?.color ?? 'hsl(var(--primary) / var(--un-tex
 </PageLayout>
 
 {config.integ.mediumZoom.enable && <MediumZoom />}
-
-<style is:global>
-  /* Drop cap — first letter of the first paragraph in a blog post */
-  article > div:last-of-type > p:first-of-type::first-letter,
-  article .prose > p:first-of-type::first-letter,
-  #content > p:first-of-type::first-letter {
-    float: left;
-    font-size: 4.2rem;
-    font-weight: 700;
-    line-height: 0.75;
-    margin-right: 0.55rem;
-    padding-top: 0.08rem;
-    color: hsl(var(--primary));
-  }
-</style>
