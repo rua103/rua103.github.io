@@ -9,7 +9,6 @@ import PageLayout from '@/layouts/BaseLayout.astro'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
 import { Comment } from '@/components/giscus'
-import Follow from '@/components/Follow.astro'
 import config from '@/site-config'
 
 const languages = ['Python', 'C', 'C++']
@@ -141,13 +140,6 @@ if (!images[imagePath])
       <Section title='♩ Skills'>
         <SkillLayout title='Languages' skills={languages} />
         <SkillLayout title='AI / ML' skills={ai} />
-      </Section>
-
-      <Section title='📬 Subscribe'>
-        <p class='text-muted-foreground text-sm mb-4'>
-          Get notified when new posts drop ♪
-        </p>
-        <Follow />
       </Section>
 
       <section id='guestbook' class='flex flex-col gap-y-5'>
