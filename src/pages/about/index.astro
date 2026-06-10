@@ -34,10 +34,9 @@ if (!images[imagePath])
     </section>
 
     <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
-      <Section title='✦ Bio'>
+      <Section title='Bio'>
         <p class='text-muted-foreground leading-7'>
-          Hey, I'm <strong class='text-foreground'>Ru00y</strong> ♪
-          I'm an undergrad working on
+          Hey, I'm <strong class='text-foreground'>Ru00y</strong>          I'm an undergrad working on
           <strong class='text-foreground'>large language models</strong> and multimodal learning.
           When I'm not staring at training curves or untangling CUDA errors,
           I'm probably deep in a JPOP playlist.
@@ -50,7 +49,7 @@ if (!images[imagePath])
         </p>
       </Section>
 
-      <Section title='★ Publications'>
+      <Section title='Publications'>
         <a
           href='https://openreview.net/forum?id=IVuhnkQQYr'
           target='_blank'
@@ -66,24 +65,30 @@ if (!images[imagePath])
         </a>
       </Section>
 
-      <Section title='🎸 Currently'>
-        <ul class='flex flex-col gap-y-2 text-muted-foreground' style='list-style:none;padding:0;'>
-          <li>🎸 VLM robustness research</li>
-          <li>📘 Studying algorithms (CLRS) & LeetCode</li>
-          <li>💻 CS:APP labs & CS336 — Language Modeling from Scratch</li>
-          <li>🎨 Computer Graphics — OpenGL & Path Tracing</li>
-        </ul>
+      <Section title='What I care about'>
+        <p class='text-muted-foreground leading-7'>
+          I want to understand how intelligence works — both in machines and in the messy,
+          beautiful process of building them. Right now I'm focused on
+          <strong class='text-foreground'>multimodal models</strong> that see, read, and reason,
+          but my long-term curiosity lies in <strong class='text-foreground'>interpretability</strong>
+          and what happens when these systems scale beyond what we can explain.
+        </p>
+        <p class='text-muted-foreground leading-7 mt-2'>
+          I'd like to be around to see AGI happen. Not as a spectator — as someone who contributed
+          something real along the way.
+        </p>
       </Section>
 
-      <Section title='♩ Skills'>
+      <Section title='Skills'>
         <SkillLayout title='Languages' skills={languages} />
         <SkillLayout title='AI / ML' skills={ai} />
       </Section>
 
-      <Section title='✉️ Contact'>
-        <p class='text-muted-foreground'>
-          Find me on <a href='https://github.com/rua103' target='_blank' class='highlight'>GitHub</a> ♪
-          I'm always happy to chat about research, coding, or music!
+      <Section title='Contact'>
+        <p class='text-muted-foreground leading-7'>
+          Find me on <a href='https://github.com/rua103' target='_blank' class='highlight'>GitHub</a>,
+          or reach me at <a href='mailto:fuhanying2710031@gmail.com' class='highlight'>fuhanying2710031@gmail.com</a>.
+          I'm always happy to chat about research, coding, or music.
         </p>
       </Section>
     </div>
