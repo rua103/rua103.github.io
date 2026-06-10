@@ -91,6 +91,11 @@ const {
         const hostname = window.location.hostname
         if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return
 
+        if (window.location.search === '?login' || new URLSearchParams(window.location.search).has('login')) {
+          window.location.href = 'https://api.ru00ys-lab.com/login'
+          return
+        }
+
         const key = 'ru00y:tracked-date'
         const now = new Date()
         const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
