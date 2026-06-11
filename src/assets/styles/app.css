@@ -212,9 +212,17 @@ article #content > p:first-of-type::first-letter {
 
 /* now-playing */
 .ns-player {
+  display: block;
   margin-top: auto;
   padding-top: 1.25rem;
   border-top: 1px solid hsl(var(--border) / 0.55);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+.ns-player:hover {
+  border-top-color: hsl(var(--ring) / 0.4);
 }
 .ns-np-label {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;

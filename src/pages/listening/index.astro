@@ -1,0 +1,309 @@
+---
+import PageLayout from '@/layouts/BaseLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
+---
+
+<PageLayout meta={{ title: 'Listening' }} sidebar>
+  <SidebarLayout>
+    <section class='animate mb-8' id='content-header'>
+      <p class='lm-eyebrow'>Soundtrack</p>
+      <h1 class='lm-title'>Listening</h1>
+      <p class='lm-lede'>What I've been spinning. Powered by Last.fm.</p>
+    </section>
+
+    <div id='content' class='animate'>
+      <!-- Period tabs -->
+      <div class='lm-tabs'>
+        <button class='lm-tab active' data-period='7day'>This week</button>
+        <button class='lm-tab' data-period='1month'>This month</button>
+        <button class='lm-tab' data-period='overall'>All time</button>
+      </div>
+
+      <!-- Top Artists -->
+      <section class='lm-section'>
+        <h2 class='lm-section-title'>Top artists</h2>
+        <div class='lm-artists' id='lm-artists'></div>
+      </section>
+
+      <!-- Top Tracks -->
+      <section class='lm-section'>
+        <h2 class='lm-section-title'>Top tracks</h2>
+        <ol class='lm-tracks' id='lm-tracks'></ol>
+      </section>
+
+      <!-- Recent -->
+      <section class='lm-section'>
+        <h2 class='lm-section-title'>Recently played</h2>
+        <ol class='lm-tracks' id='lm-recent'></ol>
+      </section>
+    </div>
+  </SidebarLayout>
+</PageLayout>
+
+<script>
+  const USER = 'Ru00y'
+  const KEY  = '189a78aa47d5f4d7602ac0e5a1e1ea41'
+
+  async function fetchLF(method: string, extra = '') {
+    const url = `https://ws.audioscrobbler.com/2.0/?method=${method}&user=${USER}&api_key=${KEY}&format=json${extra}`
+    const r = await fetch(url)
+    const d = await r.json()
+    return d
+  }
+
+  function image(images: { '#text': string; size: string }[], size = 'medium') {
+    const found = images?.find(i => i.size === size)
+    return found?.['#text'] || ''
+  }
+
+  function renderArtists(data: any) {
+    const grid = document.getElementById('lm-artists')!
+    const artists = data.topartists?.artist || []
+    grid.innerHTML = artists.slice(0, 8).map((a: any, i: number) => `
+      <a href="${a.url}" target='_blank' class='lm-artist-card'>
+        <div class='lm-artist-img-wrap'>
+          <img src="${image(a.image, 'large') || image(a.image, 'medium')}" alt='${a.name}' class='lm-artist-img' loading='lazy' onerror="this.style.display='none'" />
+          <span class='lm-artist-rank'>${i + 1}</span>
+        </div>
+        <span class='lm-artist-name'>${a.name}</span>
+        <span class='lm-artist-plays'>${a.playcount} plays</span>
+      </a>
+    `).join('')
+  }
+
+  function renderTracks(el: HTMLElement, tracks: any[], showArtist = true, showDate = false) {
+    el.innerHTML = tracks.map((t: any, i: number) => {
+      const track = t.name
+      const artist = t.artist?.['#text'] || t.artist?.name || ''
+      const plays = t.playcount ? ` · ${t.playcount} plays` : ''
+      const date = t.date?.['#text'] ? ` · ${t.date['#text']}` : ''
+      const img = image(t.image, 'small') || ''
+      return `
+        <li class='lm-track-item'>
+          <span class='lm-track-num'>${String(i + 1).padStart(2, '0')}</span>
+          ${img ? `<img src='${img}' alt='' class='lm-track-img' loading='lazy' onerror="this.style.display='none'" />` : ''}
+          <div class='lm-track-info'>
+            <span class='lm-track-name'>${track}</span>
+            ${showArtist ? `<span class='lm-track-artist'>${artist}</span>` : ''}
+          </div>
+          <span class='lm-track-meta'>${plays}${date}</span>
+        </li>
+      `
+    }).join('')
+  }
+
+  async function loadAll(period: string) {
+    try {
+      const [topArtists, topTracks, recent] = await Promise.all([
+        fetchLF('user.gettopartists', `&period=${period}&limit=8`),
+        fetchLF('user.gettoptracks', `&period=${period}&limit=10`),
+        fetchLF('user.getrecenttracks', '&limit=15')
+      ])
+      renderArtists(topArtists)
+      renderTracks(document.getElementById('lm-tracks')!, topTracks.toptracks?.track || [], true)
+      renderTracks(document.getElementById('lm-recent')!, (recent.recenttracks?.track || []).slice(0, 15), true)
+    } catch(e) {
+      document.getElementById('lm-artists')!.innerHTML = '<p class=\'lm-empty\'>Could not load listening data. Try again later.</p>'
+    }
+  }
+
+  // Tab switching
+  document.querySelectorAll('.lm-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lm-tab').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      loadAll((btn as HTMLElement).dataset.period!)
+    })
+  })
+
+  // Initial load
+  loadAll('7day')
+</script>
+
+<style>
+  .lm-eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: hsl(var(--primary));
+    margin-bottom: 0.7rem;
+  }
+  .lm-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    letter-spacing: -0.022em;
+    color: hsl(var(--foreground));
+  }
+  .lm-lede {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.5rem;
+  }
+
+  .lm-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin: 2rem 0 2.5rem;
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    padding-bottom: 0;
+  }
+  .lm-tab {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    padding: 0.5rem 0.9rem;
+    border: none;
+    background: none;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.25s ease, border-color 0.25s ease;
+    letter-spacing: 0.04em;
+  }
+  .lm-tab:hover { color: hsl(var(--foreground)); }
+  .lm-tab.active {
+    color: hsl(var(--primary));
+    border-bottom-color: hsl(var(--primary));
+  }
+
+  .lm-section { margin-bottom: 2.5rem; }
+  .lm-section-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+    color: hsl(var(--foreground));
+  }
+
+  /* Artists grid */
+  .lm-artists {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 640px) {
+    .lm-artists { grid-template-columns: repeat(2, 1fr); }
+  }
+  .lm-artist-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    padding: 1rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: background 0.25s ease;
+  }
+  .lm-artist-card:hover { background: hsl(var(--muted) / 0.5); }
+  .lm-artist-img-wrap {
+    position: relative;
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: 0.6rem;
+  }
+  .lm-artist-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid hsl(var(--border) / 0.4);
+  }
+  .lm-artist-rank {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    color: hsl(var(--background));
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lm-artist-name {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.9rem;
+    color: hsl(var(--foreground));
+    text-align: center;
+    line-height: 1.2;
+  }
+  .lm-artist-plays {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.62rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.2rem;
+  }
+
+  /* Tracks list */
+  .lm-tracks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .lm-track-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid hsl(var(--border) / 0.35);
+  }
+  .lm-track-item:last-child {
+    border-bottom: 1px solid hsl(var(--border) / 0.35);
+  }
+  .lm-track-num {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    color: hsl(var(--primary) / 0.7);
+    width: 1.4rem;
+    flex-shrink: 0;
+  }
+  .lm-track-img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.25rem;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .lm-track-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .lm-track-name {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 0.95rem;
+    color: hsl(var(--foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lm-track-artist {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 0.78rem;
+    color: hsl(var(--muted-foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lm-track-meta {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.62rem;
+    color: hsl(var(--muted-foreground) / 0.7);
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .lm-empty {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+    padding: 2rem 0;
+    text-align: center;
+  }
+</style>
