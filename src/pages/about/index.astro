@@ -3,6 +3,7 @@ import { Image } from 'astro:assets'
 import Section from '@/components/home/Section.astro'
 import SkillLayout from '@/components/home/SkillLayout.astro'
 import PageLayout from '@/layouts/BaseLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
 import config from '@/site-config'
 
 const languages = ['Python', 'C', 'C++']
@@ -16,24 +17,22 @@ if (!images[imagePath])
   throw new Error(`"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`)
 ---
 
-<PageLayout meta={{ title: 'About' }}>
-  <main class='flex w-full flex-col items-center'>
-    <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
+<PageLayout meta={{ title: 'About' }} sidebar>
+  <SidebarLayout>
+    <section class='animate mb-8' id='content-header'>
       <Image
         src={images[imagePath]()}
         alt={config.logo.alt || 'Profile'}
-        class='h-48 w-auto rounded-full border-2 p-1 shadow-lg'
+        class='h-32 w-auto rounded-full border-2 p-1 shadow-lg mb-5'
         style='border-color: hsl(var(--primary) / 0.5);'
         loading='eager'
         fetchpriority='high'
       />
-      <div>
-        <h1 class='text-3xl font-bold text-center about-title'>About Ru00y</h1>
-        <p class='text-muted-foreground text-center mt-2'>VLM researcher. Builder. Music listener.</p>
-      </div>
+      <h1 class='about-title'>About Ru00y</h1>
+      <p class='about-sub'>VLM researcher. Builder. Music listener.</p>
     </section>
 
-    <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
+    <div id='content' class='animate flex flex-col gap-y-8'>
       <Section title='Bio'>
         <p class='text-muted-foreground leading-7'>
           Hey, I'm <strong class='text-foreground'>Ru00y</strong>. I'm an undergrad working on
@@ -58,7 +57,7 @@ if (!images[imagePath])
         <a
           href='https://openreview.net/forum?id=IVuhnkQQYr'
           target='_blank'
-          class='not-prose block relative rounded-2xl border bg-muted px-5 py-3 transition-all hover:border-foreground/25 hover:shadow-sm'
+          class='not-prose block rounded-2xl border bg-muted px-5 py-3 transition-all hover:border-foreground/25 hover:shadow-sm'
         >
           <span class='inline-block w-fit rounded-full bg-primary/12 text-primary text-xs font-semibold px-2 py-0.5 mb-2'>
             ECCV 2026
@@ -96,14 +95,24 @@ if (!images[imagePath])
         </p>
       </Section>
     </div>
-  </main>
+  </SidebarLayout>
 </PageLayout>
 
 <style>
   .about-title {
     font-family: 'Newsreader', Georgia, serif !important;
+    font-size: 2rem;
     font-weight: 600;
     letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+    color: hsl(var(--foreground));
+  }
+  .about-sub {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
   #content h2 {
     font-family: 'Newsreader', Georgia, serif !important;
