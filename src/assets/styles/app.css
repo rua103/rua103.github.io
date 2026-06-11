@@ -252,6 +252,7 @@ article #content > p:first-of-type::first-letter {
   line-height: 1.25;
 }
 .ns-np-artist {
+  font-family: 'Spectral', Georgia, 'Times New Roman', serif;
   font-size: 0.82rem;
   color: hsl(var(--muted-foreground));
   margin-top: 0.1rem;

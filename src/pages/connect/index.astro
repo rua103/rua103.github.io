@@ -328,10 +328,10 @@ const shuffled = shuffle(friends)
 </script>
 
 <style>
-  h1 { font-family: 'Newsreader', Georgia, serif !important; font-weight: 600; letter-spacing: -0.02em; }
-  h2 { font-family: 'Newsreader', Georgia, serif !important; font-weight: 600; letter-spacing: -0.01em; }
-  h3 { font-family: 'Newsreader', Georgia, serif !important; }
-  p, li, span { font-family: 'Spectral', Georgia, 'Times New Roman', serif !important; }
-  .text-sm, .text-xs { font-family: 'Spectral', Georgia, 'Times New Roman', serif !important; }
-  .font-mono, code, pre { font-family: 'IBM Plex Mono', ui-monospace, monospace !important; }
+  :global(h1) { font-family: 'Newsreader', Georgia, serif !important; font-weight: 600; letter-spacing: -0.02em; }
+  :global(h2) { font-family: 'Newsreader', Georgia, serif !important; font-weight: 600; letter-spacing: -0.01em; }
+  :global(h3) { font-family: 'Newsreader', Georgia, serif !important; }
+  :global(p), :global(li), :global(span:not(.font-mono):not(.copy-btn)) { font-family: 'Spectral', Georgia, 'Times New Roman', serif !important; }
+  :global(.text-sm), :global(.text-xs) { font-family: 'Spectral', Georgia, 'Times New Roman', serif !important; }
+  :global(.font-mono), :global(code), :global(pre) { font-family: 'IBM Plex Mono', ui-monospace, monospace !important; }
 </style>
