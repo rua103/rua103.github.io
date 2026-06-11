@@ -214,15 +214,28 @@ article #content > p:first-of-type::first-letter {
 .ns-player {
   display: block;
   margin-top: auto;
-  padding-top: 1.25rem;
-  border-top: 1px solid hsl(var(--border) / 0.55);
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+  padding: 0.9rem 0.5rem;
+  border-radius: 0.5rem;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: border-color 0.25s ease;
+  border-top: 1px solid hsl(var(--border) / 0.55);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(.2,.7,.3,1), box-shadow 0.25s ease;
 }
 .ns-player:hover {
-  border-top-color: hsl(var(--ring) / 0.4);
+  background: hsl(var(--muted) / 0.5);
+  border-top-color: transparent;
+  border-radius: 0.5rem;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px hsl(var(--background) / 0.3);
+}
+.ns-player:hover .ns-eq i {
+  background: hsl(var(--ring));
+}
+.ns-player:hover .ns-np-track {
+  color: hsl(var(--ring));
 }
 .ns-np-label {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
