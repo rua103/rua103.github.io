@@ -6,19 +6,23 @@ import DarkModePopup from '@/components/DarkModePopup.astro'
 import DockMagnify from '@/components/DockMagnify.astro'
 import config from '@/site-config'
 
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseLayout /> component.
 import '@/assets/styles/global.css'
 import '@/assets/styles/app.css'
 
 interface Props {
   meta: SiteMeta
   highlightColor?: string
+  /** Use sidebar layout — hides Header/Footer, uses v0 background + toggle */
+  sidebar?: boolean
+  /** Page has its own full-bleed hero art — suppress the fixed page-art layers */
+  hero?: boolean
 }
 
 const {
   meta: { articleDate, description = config.description, ogImage, title },
   highlightColor,
+  sidebar = false,
+  hero = false,
   ...props
 } = Astro.props
 ---
@@ -27,23 +31,34 @@ const {
   <head>
     <BaseHead {articleDate} {description} {ogImage} {title} />
     <ThemeProvider />
+    <link rel='preconnect' href='https://fonts.googleapis.com' />
+    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+    <link href='https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Spectral:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap' rel='stylesheet' />
   </head>
 
-  <body class='flex justify-center bg-background text-foreground' {...props}>
-    <!-- Full-page Mio background -->
-    <div class='fixed inset-0 z-0 pointer-events-none opacity-15' aria-hidden='true'>
-      <img src='/images/mio/page-bg.png' alt='' class='w-full h-full object-cover' onerror="this.parentElement.style.display='none'" />
-    </div>
-    <div
-      id='main-container'
-      class='w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
-    >
-      <Header />
-      <div class='flex-1 w-full'>
-        <slot />
+  <body class={sidebar ? 'bg-background text-foreground' : 'flex justify-center bg-background text-foreground'} {...props}>
+    <!-- Background art layers (v0 signature) — suppressed when page has its own hero art -->
+    {!hero && (
+      <>
+        <div class='ns-art-bg' aria-hidden='true'></div>
+        <div class='ns-art-veil' aria-hidden='true'></div>
+      </>
+    )}
+
+    {sidebar ? (
+      <slot />
+    ) : (
+      <div
+        id='main-container'
+        class='w-full max-w-[70rem] min-h-[100dvh] flex flex-col justify-between'
+      >
+        <Header />
+        <div class='flex-1 w-full'>
+          <slot />
+        </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    )}
 
     {/* Set highlight color */}
     <style define:vars={{ highlightColor }}>
@@ -62,10 +77,6 @@ const {
         ) !important;
       }
 
-      /* Extend safe area for some special screens
-       * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/env
-       * https://webkit.org/blog/7929/designing-websites-for-iphone-x/
-       */
       #main-container {
         padding-top: env(safe-area-inset-top);
         padding-left: calc(1rem + env(safe-area-inset-left));
@@ -104,7 +115,7 @@ const {
         fetch('https://api.ru00ys-lab.com/me', { credentials: 'include' })
           .then(r => r.json())
           .then(d => {
-            if (d.ok) return // owner — skip
+            if (d.ok) return
             localStorage.setItem(key, today)
             fetch('https://api.ru00ys-lab.com/track', { credentials: 'include' }).catch(() => {})
           })

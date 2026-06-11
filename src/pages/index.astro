@@ -1,166 +1,236 @@
 ---
-import { Image } from 'astro:assets'
-
-import { Quote } from 'astro-pure/advanced'
 import PostPreview from '@/components/PostPreview.astro'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
-import { Button } from 'astro-pure/user'
 import PageLayout from '@/layouts/BaseLayout.astro'
-import Section from '@/components/home/Section.astro'
-import SkillLayout from '@/components/home/SkillLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
 import { Comment } from '@/components/giscus'
-import config from '@/site-config'
-
-const languages = ['Python', 'C', 'C++']
-const ai = ['AI', 'MLLM', 'RL', 'Reasoning Model']
 
 const MAX_POSTS = 6
 const allPosts = await getBlogCollection()
 const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
 
-const imagePath = config.logo.src
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
-)
-if (!images[imagePath])
-  throw new Error(
-    `"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`
-  )
+const publications = [
+  {
+    title: 'DegEval: Benchmarking and Understanding Visual Degradation in Vision-Language Models',
+    authors: 'Jintao Gu, Guoshun Nan, Kaixiang Pan, Hanying Fu, et al.',
+    venue: 'ECCV 2026',
+    url: 'https://openreview.net/forum?id=IVuhnkQQYr',
+    status: 'Under Review'
+  }
+]
 ---
 
-<PageLayout meta={{ title: 'Home' }}>
-  <main class='flex w-full flex-col items-center'>
-    <!-- Hero -->
-    <section class='animate mb-10 flex flex-col items-center gap-y-7' id='content-header'>
-      <Image
-        src={images[imagePath]()}
-        alt={config.logo.alt || 'Profile'}
-        class='h-56 w-auto rounded-full border-2 p-1 shadow-lg'
-        style='border-color: hsl(var(--primary) / 0.5);'
-        loading='eager'
-        fetchpriority='high'
-      />
-
-      <div class='flex flex-col items-center gap-y-4'>
-        <h1 class='text-3xl font-bold gradient-text'>Ru00y's Lab</h1>
-        <div class='text-muted-foreground text-lg flex items-center gap-2'>
-          LLM Learner
-        </div>
-        <div class='flex flex-wrap justify-center gap-x-7 gap-y-3'>
-          <a
-            href='https://github.com/rua103'
-            target='_blank'
-            class='flex flex-row items-center gap-x-2 hover:text-primary transition-all'
-          >
-            <svg aria-hidden='true' class='size-5' width='22' height='22' viewBox='0 0 24 24' fill='currentColor'>
-              <path d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'/>
-            </svg>
-            <span>GitHub</span>
-          </a>
-        </div>
-      </div>
-
-      <div class='flex flex-row items-center gap-x-3 rounded-full border bg-background px-4 py-2 text-sm shadow-sm'>
-        <span class='relative flex items-center justify-center'>
-          <span class='absolute size-2 animate-ping rounded-full opacity-75'
-                style='background: hsl(var(--primary));'></span>
-          <span class='size-2 rounded-full' style='background: hsl(var(--primary));'></span>
-        </span>
-        <p class='font-medium text-muted-foreground'>Currently pushing code & bass lines...</p>
+<PageLayout meta={{ title: 'Home' }} sidebar>
+  <SidebarLayout>
+    <!-- Identity -->
+    <section class='animate mb-10' id='content-header'>
+      <p class='ns-eyebrow'>VLM Research &middot; Field Notes</p>
+      <h1 class='ns-page-title'>Hey, I'm Ru00y.</h1>
+      <p class='ns-lede'>
+        I work on vision-language models — building systems that see and read.
+        This is my lab notebook: papers, projects, and late-night thoughts.
+      </p>
+      <div class='flex gap-3 mt-5'>
+        <a href='/blog' class='ns-cta'>Read the blog</a>
+        <a href='/about' class='ns-cta-ghost'>About me</a>
       </div>
     </section>
 
-    <div id='content' class='animate flex flex-col gap-y-10 md:w-4/5 lg:w-5/6'>
-      <Section title='✦ About'>
-        <div class='mio-quote mb-2'>"Don't say lazy" — Akiyama Mio ♪</div>
-        <p class='text-muted-foreground leading-7'>
-          LLM researcher, Mio fan, bass enthusiast.
-          Building models that see and read.
-        </p>
-        <Button title='More about me ♪' class='w-fit self-end' href='/about' variant='ahead' />
-      </Section>
-
-      {allPostsByDate.length > 0 && (
-        <Section title='♪ Posts'>
-          <ul class='flex flex-col gap-y-1.5 sm:gap-y-2'>
-            {allPostsByDate.map((p) => (
-              <li class='flex flex-col gap-x-2 sm:flex-row'>
-                <PostPreview post={p} />
-              </li>
-            ))}
-          </ul>
-          <Button title='More posts ♪' class='w-fit self-end' href='/blog' variant='ahead' />
-        </Section>
-      )}
-
-      <Section title='★ Publications'>
-        <a
-          href='https://openreview.net/forum?id=IVuhnkQQYr'
-          target='_blank'
-          class='not-prose block relative rounded-2xl border bg-muted px-5 py-3 transition-all hover:border-foreground/25 hover:shadow-sm'
-        >
-          <span class='inline-block w-fit rounded-full bg-primary/12 text-primary text-xs font-semibold px-2 py-0.5'>
-            ECCV 2026
-          </span>
-          <h3 class='text-foreground font-semibold mt-1.5'>
-            DegEval: Benchmarking and Understanding Visual Degradation in Vision-Language Models
-          </h3>
-          <p class='text-muted-foreground text-sm mt-1'>
-            Jintao Gu, Guoshun Nan, Kaixiang Pan, <strong class='text-foreground'>Hanying Fu</strong>, et al.
-          </p>
-        </a>
-      </Section>
-
-      <Section title='🛠️ Projects'>
-        <div class='flex flex-col gap-y-2'>
-          <a href='https://github.com/rua103/Disaster-detection' target='_blank'
-             class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='font-medium text-foreground'>Disaster Detection</span>
-            <span class='text-muted-foreground text-xs'>— YOLO-based slope disaster detector</span>
-          </a>
-          <a href='https://github.com/rua103/smart-security-alarm' target='_blank'
-             class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='font-medium text-foreground'>Smart Security Alarm</span>
-            <span class='text-muted-foreground text-xs'>— STM32 multi-sensor alarm system</span>
-          </a>
-          <a href='https://github.com/rua103/StructuredNounCaption' target='_blank'
-             class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='font-medium text-foreground'>Structured Noun Caption</span>
-            <span class='text-muted-foreground text-xs'>— Noun-guided image captioning</span>
-          </a>
-          <a href='https://github.com/rua103/Umich-pytorch' target='_blank'
-             class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
-            <span class='font-medium text-foreground'>Michigan DL for CV</span>
-            <span class='text-muted-foreground text-xs'>— EECS 498-007 full coursework</span>
-          </a>
-          <a href='/projects' class='btn w-fit self-end mt-1'>All projects ♪ →</a>
+    <!-- Recent writing -->
+    {allPostsByDate.length > 0 && (
+      <section class='animate mb-10' id='content'>
+        <div class='ns-section-head'>
+          <h2 class='ns-section-title'>Recent writing</h2>
+          <a href='/blog' class='ns-section-link'>All posts</a>
         </div>
-      </Section>
-
-      <Section title='♩ Skills'>
-        <SkillLayout title='Languages' skills={languages} />
-        <SkillLayout title='AI / ML' skills={ai} />
-      </Section>
-
-      <section id='guestbook' class='flex flex-col gap-y-5'>
-        <div class='flex flex-col gap-y-2 md:flex-row md:items-baseline md:gap-x-5'>
-          <h2 class='text-xl font-medium'>💬 Guestbook</h2>
-          <p class='text-muted-foreground text-sm'>
-            Leave a message ♪ — comments are powered by GitHub Discussions.
-          </p>
-        </div>
-        <Comment />
+        <ul class='flex flex-col gap-y-1.5'>
+          {allPostsByDate.map((p) => (
+            <li>
+              <PostPreview post={p} />
+            </li>
+          ))}
+        </ul>
       </section>
-    </div>
-    <Quote class='mt-12' />
-  </main>
+    )}
+
+    <!-- Publication highlight -->
+    <section class='animate mb-10'>
+      <div class='ns-section-head'>
+        <h2 class='ns-section-title'>Research</h2>
+        <a href='/publications' class='ns-section-link'>All publications</a>
+      </div>
+      {publications.map(pub => (
+        <a
+          href={pub.url}
+          target='_blank'
+          class='not-prose block rounded-xl border bg-muted px-5 py-3.5 transition-all hover:border-primary/40 hover:shadow-sm'
+        >
+          <span class='inline-block rounded-full bg-primary/12 text-primary text-xs font-semibold px-2.5 py-0.5 mb-2'>
+            {pub.venue}
+          </span>
+          <h3 class='hp-pub-title text-foreground leading-snug'>{pub.title}</h3>
+          <p class='hp-pub-authors text-muted-foreground mt-2 leading-relaxed'>{pub.authors}</p>
+        </a>
+      ))}
+    </section>
+
+    <!-- Projects -->
+    <section class='animate mb-10'>
+      <div class='ns-section-head'>
+        <h2 class='ns-section-title'>Projects</h2>
+        <a href='/projects' class='ns-section-link'>All projects</a>
+      </div>
+      <div class='flex flex-col gap-y-2'>
+        <a href='https://github.com/rua103/Disaster-detection' target='_blank'
+           class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
+          <span class='hp-proj-name text-foreground'>Disaster Detection</span>
+          <span class='hp-proj-desc text-muted-foreground'>YOLO-based slope disaster detector</span>
+        </a>
+        <a href='https://github.com/rua103/smart-security-alarm' target='_blank'
+           class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
+          <span class='hp-proj-name text-foreground'>Smart Security Alarm</span>
+          <span class='hp-proj-desc text-muted-foreground'>STM32 multi-sensor alarm system</span>
+        </a>
+        <a href='https://github.com/rua103/StructuredNounCaption' target='_blank'
+           class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
+          <span class='hp-proj-name text-foreground'>Structured Noun Caption</span>
+          <span class='hp-proj-desc text-muted-foreground'>Noun-guided image captioning</span>
+        </a>
+        <a href='https://github.com/rua103/Umich-pytorch' target='_blank'
+           class='not-prose flex items-center gap-x-3 rounded-xl border bg-muted px-4 py-2.5 transition-all hover:border-primary/40 hover:shadow-sm'>
+          <span class='hp-proj-name text-foreground'>Michigan DL for CV</span>
+          <span class='hp-proj-desc text-muted-foreground'>EECS 498-007 full coursework</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Guestbook -->
+    <section id='guestbook' class='animate flex flex-col gap-y-5 mb-8'>
+      <div class='flex flex-col gap-y-2'>
+        <h2 class='ns-section-title mb-1'>Guestbook</h2>
+        <p class='text-muted-foreground text-sm'>
+          Leave a message — comments are powered by GitHub Discussions.
+        </p>
+      </div>
+      <Comment />
+    </section>
+  </SidebarLayout>
 </PageLayout>
 
 <style>
-  .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .ns-eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: hsl(var(--primary));
+    margin-bottom: 0.9rem;
+  }
+  .ns-page-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    text-wrap: pretty;
+    color: hsl(var(--foreground));
+  }
+  .ns-lede {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 1.15rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.85rem;
+    max-width: 42ch;
+    line-height: 1.65;
+  }
+  .ns-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: hsl(var(--primary));
+    color: hsl(var(--background));
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(.2,.7,.3,1);
+  }
+  .ns-cta:hover {
+    background: hsl(var(--ring));
+    transform: translateY(-2px);
+    color: hsl(var(--background));
+    box-shadow: 0 6px 22px hsl(var(--ring) / 0.3);
+  }
+  .ns-cta:active {
+    transform: scale(0.98);
+  }
+  .ns-cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1.2rem;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    background: transparent;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(.2,.7,.3,1);
+  }
+  .ns-cta-ghost:hover {
+    border-color: hsl(var(--ring) / 0.5);
+    color: hsl(var(--ring));
+    background: hsl(var(--ring) / 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px hsl(var(--ring) / 0.12);
+  }
+  .ns-cta-ghost:active {
+    transform: scale(0.98);
+  }
+  .ns-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+  .ns-section-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .ns-section-link {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .ns-section-link:hover {
+    color: hsl(var(--primary));
+  }
+
+  /* Card typography — match the rest of the page */
+  .hp-pub-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .hp-pub-authors {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 0.9rem;
+  }
+  .hp-proj-name {
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .hp-proj-desc {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 0.85rem;
   }
 </style>

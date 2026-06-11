@@ -1,58 +1,60 @@
 ---
-import { Image } from 'astro:assets'
-import config from '@/site-config'
-
-const imagePath = config.logo.src
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/*.{jpeg,jpg,png,gif,avif,webp}'
-)
-if (!images[imagePath])
-  throw new Error(`"${imagePath}" does not exist in glob: "src/assets/*.{jpeg,jpg,png,gif,avif,webp}"`)
+// Sidebar-as-record-sleeve: sticky left sidebar with vertical art strip,
+// wordmark, tracklist nav, and now-playing player docked at bottom.
+// Matches the Night Session v0 canonical design.
 ---
 
-<div class='flex gap-0 w-full'>
-  <!-- Sidebar -->
-  <aside
-    class='mio-sidebar hidden lg:flex flex-col items-center gap-y-4 w-60 flex-shrink-0 py-8 px-4 rounded-2xl mr-6'
-    style='background-image: url(/images/mio/sidebar-bg.png);'
-  >
-    <Image
-      src={images[imagePath]()}
-      alt={config.logo.alt || 'Profile'}
-      class='h-28 w-auto rounded-full border-2 p-1 shadow-lg relative z-10'
-      style='border-color: hsl(var(--primary) / 0.6);'
-      loading='eager'
-      fetchpriority='high'
-    />
-    <h2 class='text-lg font-bold gradient-text relative z-10'>Ru00y's Lab</h2>
+<div class='ns-shell'>
+  <aside class='ns-sidebar'>
+    <div class='ns-side-art'></div>
+    <div class='ns-side-inner'>
+      <a href='/' class='ns-wordmark'>Ru00y.</a>
+      <div class='ns-role'>VLM Research &middot; Field Notes</div>
 
-    <div class='flex flex-col gap-y-2 w-full relative z-10 mt-2'>
-      <a href='/blog' class='btn w-full justify-center text-sm'>♪ Blog</a>
-      <a href='/projects' class='btn w-full justify-center text-sm'>🛠️ Projects</a>
-      <a href='/publications' class='btn w-full justify-center text-sm'>★ Publications</a>
-      <a href='/about' class='btn w-full justify-center text-sm'>✦ About</a>
-      <a href='https://github.com/rua103' target='_blank' class='btn w-full justify-center text-sm'>
-        GitHub
-      </a>
-    </div>
+      <nav class='ns-nav'>
+        <a href='/blog'><span class='num'>01</span><span class='trk'>Writing</span></a>
+        <a href='/projects'><span class='num'>02</span><span class='trk'>Projects</span></a>
+        <a href='/publications'><span class='num'>03</span><span class='trk'>Publications</span></a>
+        <a href='/about'><span class='num'>04</span><span class='trk'>About</span></a>
+        <a href='/connect'><span class='num'>05</span><span class='trk'>Connect</span></a>
+        <a href='https://github.com/rua103' target='_blank'><span class='num'>06</span><span class='trk'>GitHub</span></a>
+      </nav>
 
-    <div class='mt-auto relative z-10 text-center'>
-      <p class='text-xs text-muted-foreground italic'>"Don't say lazy"</p>
-      <p class='text-xs text-muted-foreground'>— Akiyama Mio ♪</p>
+      <div class='ns-player'>
+        <div class='ns-np-label'>
+          <span class='ns-eq'><i></i><i></i><i></i><i></i></span>
+          <span id='np-state'>Now playing</span>
+        </div>
+        <div class='ns-np-track' id='np-track'>Loading...</div>
+        <div class='ns-np-artist'>by <b id='np-artist'>---</b></div>
+      </div>
     </div>
   </aside>
 
-  <!-- Content -->
-  <main class='flex-1 min-w-0'>
+  <main class='ns-main'>
     <slot />
   </main>
 </div>
 
-<style>
-  .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 80% 70%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+<script>
+  // Live "now playing" via Last.fm. Falls back to static mock offline / on error.
+  // Real site reads these from env; hard-coded placeholders for now.
+  const LASTFM_USER = 'Ru00y'
+  const LASTFM_KEY  = '189a78aa47d5f4d7602ac0e5a1e1ea41'
+  async function pullNowPlaying() {
+    if (LASTFM_USER === 'YOUR_LASTFM_USER') return
+    try {
+      const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=1`
+      const r = await fetch(url); const d = await r.json()
+      const t = d.recenttracks?.track?.[0]; if (!t) return
+      const live = t['@attr']?.nowplaying === 'true'
+      const stateEl = document.getElementById('np-state')
+      const trackEl = document.getElementById('np-track')
+      const artistEl = document.getElementById('np-artist')
+      if (stateEl) stateEl.textContent = live ? 'Now playing' : 'Last played'
+      if (trackEl) trackEl.textContent = t.name
+      if (artistEl) artistEl.textContent = t.artist['#text']
+    } catch (e) { /* keep fallback */ }
   }
-</style>
+  pullNowPlaying()
+</script>

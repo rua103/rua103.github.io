@@ -3,7 +3,7 @@ import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } fro
 export const theme: ThemeUserConfig = {
   title: "Ru00y's Lab",
   author: 'Ru00y',
-  description: '♪ A VLM researcher & Mio fan — bass-driven, code-powered.',
+  description: 'A VLM researcher — building systems that see and read.',
   favicon: '/favicon/favicon-32x32.png',
   socialCard: '/images/social-card.png',
   locale: {
@@ -21,7 +21,7 @@ export const theme: ThemeUserConfig = {
     alt: "Ru00y's avatar"
   },
 
-  titleDelimiter: '♪',
+  titleDelimiter: '·',
   prerender: true,
   npmCDN: 'https://cdn.jsdelivr.net/npm',
 
@@ -39,7 +39,7 @@ export const theme: ThemeUserConfig = {
   },
 
   footer: {
-    year: `♪ ${new Date().getFullYear()}`,
+    year: `${new Date().getFullYear()}`,
     links: [],
     credits: false,
     social: [
@@ -61,7 +61,7 @@ export const theme: ThemeUserConfig = {
 export const integ: IntegrationUserConfig = {
   links: {
     logbook: [
-      { date: '2026-06-09', content: '♪ Blog launched! — Ru00y\'s Lab is born.' },
+      { date: '2026-06-09', content: 'Blog launched — Ru00y\'s Lab is born.' },
     ],
     applyTip: [
       { name: 'Name', val: theme.title! },
