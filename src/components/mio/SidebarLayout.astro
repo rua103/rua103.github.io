@@ -37,24 +37,30 @@
 </div>
 
 <script>
-  // Live "now playing" via Last.fm. Falls back to static mock offline / on error.
-  // Real site reads these from env; hard-coded placeholders for now.
   const LASTFM_USER = 'Ru00y'
   const LASTFM_KEY  = '189a78aa47d5f4d7602ac0e5a1e1ea41'
+  let lastTrack = ''
+  let lastArtist = ''
+
   async function pullNowPlaying() {
-    if (LASTFM_USER === 'YOUR_LASTFM_USER') return
     try {
       const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=1`
       const r = await fetch(url); const d = await r.json()
       const t = d.recenttracks?.track?.[0]; if (!t) return
       const live = t['@attr']?.nowplaying === 'true'
+      const name = t.name
+      const artist = t.artist['#text']
+      if (name === lastTrack && artist === lastArtist) return // no change
+      lastTrack = name; lastArtist = artist
       const stateEl = document.getElementById('np-state')
       const trackEl = document.getElementById('np-track')
       const artistEl = document.getElementById('np-artist')
       if (stateEl) stateEl.textContent = live ? 'Now playing' : 'Last played'
-      if (trackEl) trackEl.textContent = t.name
-      if (artistEl) artistEl.textContent = t.artist['#text']
+      if (trackEl) trackEl.textContent = name
+      if (artistEl) artistEl.textContent = artist
     } catch (e) { /* keep fallback */ }
   }
+
   pullNowPlaying()
+  setInterval(pullNowPlaying, 30000) // refresh every 30s
 </script>
