@@ -28,7 +28,7 @@ if (!images[imagePath])
         fetchpriority='high'
       />
       <div>
-        <h1 class='text-3xl font-bold text-center'>About Ru00y</h1>
+        <h1 class='text-3xl font-bold text-center about-title'>About Ru00y</h1>
         <p class='text-muted-foreground text-center mt-2'>VLM researcher. Builder. Music listener.</p>
       </div>
     </section>
@@ -99,3 +99,30 @@ if (!images[imagePath])
   </main>
 </PageLayout>
 
+<style>
+  .about-title {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  #content h2 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  #content h3 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 600;
+  }
+  #content p, #content li {
+    font-family: 'Spectral', Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  a {
+    transition: color 0.25s ease;
+  }
+  a:hover {
+    color: hsl(var(--ring));
+  }
+</style>
