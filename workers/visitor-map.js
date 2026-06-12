@@ -26,6 +26,22 @@ function cookieValue(cookie, name) {
   return match?.[1] || ''
 }
 
+// Known bot/crawler User-Agent patterns to filter out
+const BOT_PATTERNS = [
+  /bot/i, /crawler/i, /spider/i, /scraper/i, /curl/i, /wget/i,
+  /headless/i, /selenium/i, /puppeteer/i, /playwright/i,
+  /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i, /baiduspider/i,
+  /yandex/i, /sogou/i, /facebookexternalhit/i, /twitterbot/i,
+  /gptbot/i, /chatgpt/i, /ccbot/i, /anthropic/i, /claude/i,
+  /bytespider/i, /petalbot/i, /ahrefs/i, /semrush/i, /rogerbot/i,
+  /dotbot/i, /mj12bot/i, /barkrowler/i, /BLEXBot/i,
+]
+
+function isBot(request) {
+  const ua = request.headers.get('User-Agent') || ''
+  return BOT_PATTERNS.some(p => p.test(ua))
+}
+
 function redirect(location, cookies = []) {
   const headers = new Headers({ Location: location })
   for (const cookie of cookies) headers.append('Set-Cookie', cookie)
@@ -124,8 +140,9 @@ export default {
       return new Response(JSON.stringify({ ok }), { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
     }
 
-    // /track — record (skip owner)
+    // /track — record (skip bots + owner)
     if (url.pathname === '/track') {
+      if (isBot(request)) return new Response('ok', { headers: corsHeaders() })
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
       if (uid && sig && (await hmac(uid, secret)) === sig) {
