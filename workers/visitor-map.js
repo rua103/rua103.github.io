@@ -72,6 +72,7 @@ export default {
       const allowHeaders = []
       if (url.pathname === '/subscribe') { methods = 'GET, POST, OPTIONS'; allowHeaders.push('Content-Type') }
       if (url.pathname === '/subscribers') { methods = 'GET, DELETE, OPTIONS'; allowHeaders.push('Content-Type') }
+      if (url.pathname === '/clear-visitors') { methods = 'POST, OPTIONS' }
       const h = corsHeaders(methods)
       if (allowHeaders.length) h['Access-Control-Allow-Headers'] = allowHeaders.join(', ')
       return new Response(null, { headers: h })
@@ -197,8 +198,8 @@ export default {
       }
     }
 
-    // /clear-visitors — owner only, wipe all visitor KV data
-    if (url.pathname === '/clear-visitors') {
+    // /clear-visitors — owner only, wipe all visitor KV data (POST only)
+    if (url.pathname === '/clear-visitors' && request.method === 'POST') {
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
       const isOwner = Boolean(uid && sig && (await hmac(uid, secret)) === sig)
