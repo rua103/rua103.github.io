@@ -197,6 +197,17 @@ export default {
       }
     }
 
+    // /clear-visitors — owner only, wipe all visitor KV data
+    if (url.pathname === '/clear-visitors') {
+      const cookie = request.headers.get('Cookie') || ''
+      const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
+      const isOwner = Boolean(uid && sig && (await hmac(uid, secret)) === sig)
+      if (!isOwner) return new Response(JSON.stringify({ ok: false }), { status: 403, headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+      await env.VISITORS.put('data', '[]')
+      await env.VISITORS.put('public', '[]')
+      return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
+    }
+
     // /data
     if (url.pathname === '/data') {
       const raw = await env.VISITORS.get('public')
