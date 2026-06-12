@@ -141,9 +141,11 @@ export default {
       return new Response(JSON.stringify({ ok }), { headers: { ...corsHeaders(), 'Content-Type': 'application/json' } })
     }
 
-    // /track — record (skip bots + owner)
+    // /track — record (skip bots, foreign origins, and owner)
     if (url.pathname === '/track') {
       if (isBot(request)) return new Response('ok', { headers: corsHeaders() })
+      const origin = request.headers.get('Origin') || ''
+      if (origin && origin !== 'https://ru00ys-lab.com') return new Response('ok', { headers: corsHeaders() })
       const cookie = request.headers.get('Cookie') || ''
       const [uid, sig] = cookieValue(cookie, OWNER_COOKIE).split(':')
       if (uid && sig && (await hmac(uid, secret)) === sig) {
