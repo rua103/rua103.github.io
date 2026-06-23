@@ -11,28 +11,6 @@ tags:
 draft: false
 ---
 
-## Notation and Probability Quick-Start
-
-If the equations feel unfamiliar, the issue is likely probability notation, not NCE itself. Here is a minimal primer.
-
-| Symbol | How to read it | Meaning | Example |
-|:---|:---|:---|:---|
-| $P(w)$ | "probability of $w$" | Probability a random variable takes the value $w$ | $P(\text{cat}) = 0.3$ means cat appears 30% of the time |
-| $P(w \mid h)$ | "probability of $w$ given $h$" | Conditional probability: $w$'s probability once we know $h$ | Given the previous word is "the", how likely is the next word "cat"? |
-| $w \sim P$ | "$w$ follows distribution $P$" | $w$ is **sampled** from the probability distribution $P$ | $w \sim P_d$ means $w$ comes from the data distribution |
-| $\mathbb{E}_{w \sim P}[f(w)]$ | "expectation of $f(w)$ under $P$" | Weighted average, using $P$ as the weights | For details see the explanation below |
-| $\sum_w$ | "sum over all $w$" | Add up over every possible value | $\sum_{w \in V}$ means summing over the whole vocabulary |
-| $P_d^h(w)$ | data distribution | The true frequency of word $w$ given context $h$ in training data | How often "cat" really follows "the" in human text |
-| $P_\theta^h(w)$ | model distribution | The model's predicted probability of $w$ given $h$ (with parameters $\theta$) | The softmax output |
-| $P_n(w)$ | noise distribution | An arbitrary distribution we choose ourselves | A unigram frequency distribution (common words get higher probability) |
-| $\frac{\partial}{\partial\theta}$ | "partial derivative with respect to $\theta$" | Gradient: how the function changes when $\theta$ moves | $\frac{\partial L}{\partial\theta}$ is the gradient of the loss |
-
-The expectation $\mathbb{E}$ is simply a weighted average: $\mathbb{E}_{w \sim P}[f(w)] = \sum_{w} P(w) \cdot f(w)$. Take each possible value of $f(w)$, multiply it by how often it occurs under $P(w)$, and sum. If your vocabulary has three words and your model assigns $P(\text{cat})=0.5$, $P(\text{dog})=0.3$, $P(\text{the})=0.2$, with scores $s(\text{cat})=10$, $s(\text{dog})=5$, $s(\text{the})=2$, then $\mathbb{E}_{w \sim P}[s(w)] = 0.5 \times 10 + 0.3 \times 5 + 0.2 \times 2 = 6.9$. That is all there is to it.
-
-The vertical bar in $P(w \mid h)$ means "under the condition that." $P(\text{rain}) = 0.3$ is the baseline; $P(\text{rain} \mid \text{dark clouds}) = 0.8$ is the updated belief once you have seen clouds. In language modeling, $P(\text{cat} \mid \text{the})$ is the probability of "cat" given that the preceding word was "the."
-
-Bayes' rule is the central tool in NCE's derivation. Its essence is flipping conditions around: $P(A \mid B) = \frac{P(A, B)}{P(B)}$, which says: the probability of A once you know B is the fraction of times A and B occur together, divided by how often B occurs at all. If "cat and from real data" happens 5 times out of 100, and "cat" appears 20 times total (real or noise), then a cat-token is from real data with probability $0.05 / 0.20 = 0.25$. NCE applies exactly this logic: given a word $w$, work backwards to decide whether it came from real data or from noise.
-
 ## 1. Why Normalization Hurts
 
 Given a context $h$ and model parameters $\theta$, predicting the next word $w$ uses the softmax:
@@ -54,6 +32,28 @@ The first term only touches words that actually appear in the training batch —
 That last line is the killer: $\mathbb{E}_{w' \sim P_\theta^h}$ means every word in the vocabulary contributes to the gradient, weighted by the model's own softmax probability. Expanding it explicitly: $\mathbb{E}_{w' \sim P_\theta^h}[\frac{\partial s_\theta}{\partial\theta}] = P_\theta^h(\text{cat}) \cdot \frac{\partial s_\theta(\text{cat}, h)}{\partial\theta} + P_\theta^h(\text{dog}) \cdot \frac{\partial s_\theta(\text{dog}, h)}{\partial\theta} + P_\theta^h(\text{the}) \cdot \frac{\partial s_\theta(\text{the}, h)}{\partial\theta} + \cdots$. Each word needs one forward pass (computing $P_\theta^h(w')$) times one backward pass (computing $\frac{\partial s_\theta}{\partial\theta}$). For a 100,000-word vocabulary, each gradient descent step costs 100,000 forward-backward passes.
 
 In plain terms: MLE pushes the score of the correct word up, but to prevent the model from cheating — giving every word an infinite score — it also pushes all word scores down, weighted by how likely the model currently thinks each word is. That "push all scores down" step runs over the whole vocabulary. NCE sidesteps this by reformulating the problem entirely.
+
+## Notation and Probability Quick-Start
+
+If the equations feel unfamiliar, the issue is likely probability notation, not NCE itself. Here is a minimal primer.
+
+| Symbol | How to read it | Meaning | Example |
+|:---|:---|:---|:---|
+| $P(w)$ | "probability of $w$" | Probability a random variable takes the value $w$ | $P(\text{cat}) = 0.3$ means cat appears 30% of the time |
+| $P(w \mid h)$ | "probability of $w$ given $h$" | Conditional probability: $w$'s probability once we know $h$ | Given the previous word is "the", how likely is the next word "cat"? |
+| $w \sim P$ | "$w$ follows distribution $P$" | $w$ is sampled from the probability distribution $P$ | $w \sim P_d$ means $w$ comes from the data distribution |
+| $\mathbb{E}_{w \sim P}[f(w)]$ | "expectation of $f(w)$ under $P$" | Weighted average, using $P$ as the weights | For details see the explanation below |
+| $\sum_w$ | "sum over all $w$" | Add up over every possible value | $\sum_{w \in V}$ means summing over the whole vocabulary |
+| $P_d^h(w)$ | data distribution | The true frequency of word $w$ given context $h$ in training data | How often "cat" really follows "the" in human text |
+| $P_\theta^h(w)$ | model distribution | The model's predicted probability of $w$ given $h$ (with parameters $\theta$) | The softmax output |
+| $P_n(w)$ | noise distribution | An arbitrary distribution we choose ourselves | A unigram frequency distribution (common words get higher probability) |
+| $\frac{\partial}{\partial\theta}$ | "partial derivative with respect to $\theta$" | Gradient: how the function changes when $\theta$ moves | $\frac{\partial L}{\partial\theta}$ is the gradient of the loss |
+
+The expectation $\mathbb{E}$ is simply a weighted average: $\mathbb{E}_{w \sim P}[f(w)] = \sum_{w} P(w) \cdot f(w)$. Take each possible value of $f(w)$, multiply it by how often it occurs under $P(w)$, and sum. If your vocabulary has three words and your model assigns $P(\text{cat})=0.5$, $P(\text{dog})=0.3$, $P(\text{the})=0.2$, with scores $s(\text{cat})=10$, $s(\text{dog})=5$, $s(\text{the})=2$, then $\mathbb{E}_{w \sim P}[s(w)] = 0.5 \times 10 + 0.3 \times 5 + 0.2 \times 2 = 6.9$. That is all there is to it.
+
+The vertical bar in $P(w \mid h)$ means "under the condition that." $P(\text{rain}) = 0.3$ is the baseline; $P(\text{rain} \mid \text{dark clouds}) = 0.8$ is the updated belief once you have seen clouds. In language modeling, $P(\text{cat} \mid \text{the})$ is the probability of "cat" given that the preceding word was "the."
+
+Bayes' rule is the central tool in NCE's derivation. Its essence is flipping conditions around: $P(A \mid B) = \frac{P(A, B)}{P(B)}$, which says: the probability of A once you know B is the fraction of times A and B occur together, divided by how often B occurs at all. If "cat and from real data" happens 5 times out of 100, and "cat" appears 20 times total (real or noise), then a cat-token is from real data with probability $0.05 / 0.20 = 0.25$. NCE applies exactly this logic: given a word $w$, work backwards to decide whether it came from real data or from noise.
 
 ## 2. Core Idea: Classification, Not Counting
 
