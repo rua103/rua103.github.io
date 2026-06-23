@@ -75,8 +75,24 @@ const minutesRead = remarkPluginFrontmatter.minutesRead as number | undefined
     </div>
   </header>
 
-  <!-- Reading surface: left-aligned article + sticky TOC sidebar -->
+  <!-- Reading surface: sticky TOC on left + article -->
   <div class='ns-reader-wrapper'>
+    <aside class='ns-toc'>
+      <p class='ns-toc-label'>On this page</p>
+      {headings.length > 0 ? (
+        <nav>
+          <ul>
+            {headings.map(h => (
+              <li style={`padding-left: ${(h.depth - 2) * 0.6}rem`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : (
+        <p class='ns-toc-empty'>No sections.</p>
+      )}
+    </aside>
     <main class='ns-reader'>
       {tags && tags.length > 0 && (
         <div class='bp-meta'>
@@ -105,23 +121,6 @@ const minutesRead = remarkPluginFrontmatter.minutesRead as number | undefined
         )}
       </div>
     </main>
-
-    <aside class='ns-toc'>
-      <p class='ns-toc-label'>On this page</p>
-      {headings.length > 0 ? (
-        <nav>
-          <ul>
-            {headings.map(h => (
-              <li style={`padding-left: ${(h.depth - 2) * 0.6}rem`}>
-                <a href={`#${h.slug}`}>{h.text}</a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : (
-        <p class='ns-toc-empty'>No sections.</p>
-      )}
-    </aside>
   </div>
 </PageLayout>
 
@@ -135,10 +134,14 @@ const minutesRead = remarkPluginFrontmatter.minutesRead as number | undefined
     align-items: flex-start;
     position: relative;
     z-index: 2;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2rem);
   }
   .ns-reader {
     flex: 1;
     min-width: 0;
+    margin-left: 0;
   }
   .ns-toc {
     width: 12rem;
