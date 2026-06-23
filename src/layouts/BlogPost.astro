@@ -81,7 +81,7 @@ const minutesRead = remarkPluginFrontmatter.minutesRead as number | undefined
       {tags && tags.length > 0 && (
         <div class='bp-meta'>
           {tags.map((tag: string) => (
-            <a href={`/tags/${tag}`} class='bp-tag'>{tag}</a>
+            <a href={`https://en.wikipedia.org/wiki/${encodeURIComponent(tag)}`} target='_blank' rel='noopener noreferrer' class='bp-tag'>{tag}</a>
           ))}
         </div>
       )}
