@@ -32,6 +32,7 @@ const typographyConfig: TypographyOptions = {
     'th-borders': border,
     'td-borders': border
   },
+  maxWidth: 'none',
   cssExtend: {
     // Title
     'h2,h3,h4,h5,h6': {

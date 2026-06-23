@@ -454,8 +454,8 @@ article #content > p:first-of-type::first-letter {
 
 /* reading surface: left-aligned (not centered) */
 .ns-reader {
-  max-width: 42rem;
-  margin-left: clamp(1.5rem, 11vw, 9rem);
+  max-width: 56rem;
+  margin-left: clamp(1.5rem, 7vw, 5rem);
   margin-right: auto;
   padding: 1rem clamp(1.5rem, 5vw, 2rem) 6rem;
   position: relative;
