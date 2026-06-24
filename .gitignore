@@ -40,3 +40,24 @@ bunfig.toml
 /src/content/blog/test.*
 /test/
 .wrangler-login.log
+
+# Generated documents and local reference exports
+CV.aux
+CV.log
+CV.out
+CV.pdf
+CV.tex
+CV.md
+night-session-v0.html
+*_files/
+hermes-reference/
+web-design-engineer/
+推荐信.pdf
+脉冲计划个人自述.md
+
+# Exported page snapshots
+LargeSkull = LargeSkull * Blog = Eureka Moment！.html
+Night Session — best.html
+Night Session — blog_read copy.html
+Night Session — blog_read.html
+Night Session — v0.html
