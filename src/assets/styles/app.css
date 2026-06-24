@@ -500,6 +500,7 @@ article .prose,
   font-family: 'Spectral', Georgia, 'Times New Roman', serif !important;
   font-size: 1.14rem;
   line-height: 1.75;
+  max-width: none !important;
 }
 .prose p {
   margin-bottom: 1.3rem;
