@@ -16,7 +16,11 @@ draft: false
 
 ## 1. Starting Point: Two Equivalent Forms of Mutual Information
 
-$$I(X; Y) = \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{p(x)}\right] = \mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{p(y)}\right] \tag{1}$$
+$$
+I(X; Y) = \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{p(x)}\right]
+= \mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{p(y)}\right]
+\tag{1}
+$$
 
 The two expressions are perfectly symmetric, conditioning on $X$ or $Y$ respectively. The derivations below will pick whichever side is more convenient.
 
@@ -34,41 +38,53 @@ The goal is a computable upper bound. The strategy: replace the intractable $p(y
 
 **Step 1.** Multiply and divide by $q(y)$ inside the log:
 
-$$I(X; Y) = \mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{p(y)}\right]
-= \mathbb{E}_{p(x,y)}\left[\log \left( \frac{p(y \mid x)}{q(y)} \cdot \frac{q(y)}{p(y)} \right)\right]$$
+$$
+I(X; Y) = \mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{p(y)}\right]
+= \mathbb{E}_{p(x,y)}\left[\log \left( \frac{p(y \mid x)}{q(y)} \cdot \frac{q(y)}{p(y)} \right)\right]
+$$
 
 **Step 2.** Split into two terms:
 
-$$= \underbrace{\mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{q(y)}\right]}_{\text{①}}
-+ \underbrace{\mathbb{E}_{p(x,y)}\left[\log \frac{q(y)}{p(y)}\right]}_{\text{②}}$$
+$$
+= \underbrace{\mathbb{E}_{p(x,y)}\left[\log \frac{p(y \mid x)}{q(y)}\right]}_{\text{term 1}}
++ \underbrace{\mathbb{E}_{p(x,y)}\left[\log \frac{q(y)}{p(y)}\right]}_{\text{term 2}}
+$$
 
 **Step 3.** Simplify each term.
 
 For ①, expand the joint expectation:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \text{①} &= \iint p(x,y) \log \frac{p(y \mid x)}{q(y)} \,dx\,dy \\
 &= \iint p(x) p(y \mid x) \log \frac{p(y \mid x)}{q(y)} \,dx\,dy \\
 &= \int p(x) \underbrace{\left[\int p(y \mid x) \log \frac{p(y \mid x)}{q(y)} \,dy\right]}_{D_{KL}(p(y \mid x) \parallel q(y))} dx \\
 &= \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right]
-\end{aligned}$$
+\end{aligned}
+$$
 
 For ②, since $p(x,y) = p(x \mid y) p(y)$, the joint expectation over $(x,y)$ can be integrated over $x$ first:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \text{②} &= \iint p(x,y) \log \frac{q(y)}{p(y)} \,dx\,dy \\
 &= \int \left[\int p(x \mid y) \,dx\right] p(y) \log \frac{q(y)}{p(y)} \,dy \\
 &= \int p(y) \log \frac{q(y)}{p(y)} \,dy \\
 &= -D_{KL}(p(y) \parallel q(y))
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Step 4.** Combine:
 
-$$I(X; Y) = \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right] - D_{KL}(p(y) \parallel q(y))$$
+$$
+I(X; Y) = \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right] - D_{KL}(p(y) \parallel q(y))
+$$
 
 **Step 5.** Since $D_{KL} \geq 0$, dropping the second term yields an upper bound:
 
-$$\boxed{I(X; Y) \leq \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right]}$$
+$$
+\boxed{I(X; Y) \leq \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right]}
+$$
 
 Equality holds when $q(y) = p(y)$. The literature often calls this upper bound the rate $R$ (Alemi et al., 2017), used as a regularizer that limits representation capacity in VAE, $\beta$-VAE, and VIB. It is not the same as the ELBO — the ELBO has an additional reconstruction term.
 
@@ -78,29 +94,39 @@ Symmetrically, replace $p(x \mid y)$ with $q(x \mid y)$.
 
 **Step 1.** Start from the $p(x \mid y)$ side, multiply and divide by $q(x \mid y)$:
 
-$$I = \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{p(x)}\right]
-= \mathbb{E}_{p(x,y)}\left[\log \left( \frac{q(x \mid y)}{p(x)} \cdot \frac{p(x \mid y)}{q(x \mid y)} \right)\right]$$
+$$
+I = \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{p(x)}\right]
+= \mathbb{E}_{p(x,y)}\left[\log \left( \frac{q(x \mid y)}{p(x)} \cdot \frac{p(x \mid y)}{q(x \mid y)} \right)\right]
+$$
 
 **Step 2.** Split into two terms:
 
-$$= \mathbb{E}_{p(x,y)}\left[\log \frac{q(x \mid y)}{p(x)}\right]
-+ \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{q(x \mid y)}\right]$$
+$$
+= \mathbb{E}_{p(x,y)}\left[\log \frac{q(x \mid y)}{p(x)}\right]
++ \mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{q(x \mid y)}\right]
+$$
 
 **Step 3.** Expand the log in the first term:
 
-$$\mathbb{E}_{p(x,y)}\left[\log \frac{q(x \mid y)}{p(x)}\right]
-= \mathbb{E}_{p(x,y)}[\log q(x \mid y)] - \mathbb{E}_{p(x,y)}[\log p(x)]$$
+$$
+\mathbb{E}_{p(x,y)}\left[\log \frac{q(x \mid y)}{p(x)}\right]
+= \mathbb{E}_{p(x,y)}[\log q(x \mid y)] - \mathbb{E}_{p(x,y)}[\log p(x)]
+$$
 
 Denote $h(X) = -\mathbb{E}_{p(x,y)}[\log p(x)]$ as the differential entropy of $X$, giving $\mathbb{E}_{p(x,y)}[\log q(x \mid y)] + h(X)$.
 
 **Step 4.** The second term is a KL divergence:
 
-$$\mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{q(x \mid y)}\right]
-= \mathbb{E}_{p(y)}\left[D_{KL}(p(x \mid y) \parallel q(x \mid y))\right] \geq 0$$
+$$
+\mathbb{E}_{p(x,y)}\left[\log \frac{p(x \mid y)}{q(x \mid y)}\right]
+= \mathbb{E}_{p(y)}\left[D_{KL}(p(x \mid y) \parallel q(x \mid y))\right] \geq 0
+$$
 
 **Step 5.** Since KL $\geq 0$, dropping it gives a lower bound:
 
-$$\boxed{I(X; Y) \geq \mathbb{E}_{p(x,y)}[\log q(x \mid y)] + h(X) \triangleq I_{BA}}$$
+$$
+\boxed{I(X; Y) \geq \mathbb{E}_{p(x,y)}[\log q(x \mid y)] + h(X) \triangleq I_{BA}}
+$$
 
 Two problems arise: (1) $h(X)$ is incalculable because $p(x)$ is unknown; (2) modeling $q(x \mid y)$ is hard when $x$ is high-dimensional data.
 
@@ -119,7 +145,9 @@ But there is a more important question: how to also get rid of $h(X)$? The answe
 
 The authors design the variational distribution as follows:
 
-$$\boxed{q(x \mid y) = \frac{p(x)}{Z(y)} e^{f(x,y)}} \tag{2}$$
+$$
+\boxed{q(x \mid y) = \frac{p(x)}{Z(y)} e^{f(x,y)}} \tag{2}
+$$
 
 Each component has a specific design purpose:
 
@@ -139,28 +167,40 @@ Now we substitute into IBA and watch each design intention play out step by step
 
 **Step 1.** Substitute (2) into $I_{BA}$:
 
-$$I_{UBA} = \mathbb{E}_{p(x,y)}[\log q(x \mid y)] + h(X)$$
+$$
+I_{UBA} = \mathbb{E}_{p(x,y)}[\log q(x \mid y)] + h(X)
+$$
 
 First compute $\log q(x \mid y)$:
 
-$$\log q(x \mid y) = \log \frac{p(x)}{Z(y)} e^{f(x,y)}
-= \log p(x) - \log Z(y) + f(x,y)$$
+$$
+\log q(x \mid y) = \log \frac{p(x)}{Z(y)} e^{f(x,y)}
+= \log p(x) - \log Z(y) + f(x,y)
+$$
 
 **Step 2.** Substitute:
 
-$$I_{UBA} = \mathbb{E}_{p(x,y)}\left[\log p(x) - \log Z(y) + f(x,y)\right] + h(X)$$
+$$
+I_{UBA} = \mathbb{E}_{p(x,y)}\left[\log p(x) - \log Z(y) + f(x,y)\right] + h(X)
+$$
 
 Expand:
 
-$$= \underbrace{\mathbb{E}_{p(x,y)}[\log p(x)]}_{-h(X)} - \mathbb{E}_{p(x,y)}[\log Z(y)] + \mathbb{E}_{p(x,y)}[f(x,y)] + h(X)$$
+$$
+= \underbrace{\mathbb{E}_{p(x,y)}[\log p(x)]}_{-h(X)} - \mathbb{E}_{p(x,y)}[\log Z(y)] + \mathbb{E}_{p(x,y)}[f(x,y)] + h(X)
+$$
 
 **Step 3.** $\mathbb{E}_{p(x,y)}[\log p(x)] = -h(X)$ and the outer $+h(X)$ cancel exactly:
 
-$$I_{UBA} = \mathbb{E}_{p(x,y)}[f(x,y)] - \mathbb{E}_{p(y)}[\log Z(y)]$$
+$$
+I_{UBA} = \mathbb{E}_{p(x,y)}[f(x,y)] - \mathbb{E}_{p(y)}[\log Z(y)]
+$$
 
 Expand $Z(y)$:
 
-$$\boxed{I_{UBA} = \mathbb{E}_{p(x,y)}[f(x,y)] - \mathbb{E}_{p(y)}\left[\log \mathbb{E}_{p(x)}[e^{f(x,y)}]\right]} \tag{3}$$
+$$
+\boxed{I_{UBA} = \mathbb{E}_{p(x,y)}[f(x,y)] - \mathbb{E}_{p(y)}\left[\log \mathbb{E}_{p(x)}[e^{f(x,y)}]\right]} \tag{3}
+$$
 
 $h(X)$ is gone. But $\log \mathbb{E}[e^f]$ remains intractable — the expectation sits inside the log, so Monte Carlo estimation cannot be unbiased.
 
@@ -172,13 +212,17 @@ The rest of Section 3 is essentially about: using various inequalities to pull t
 
 **What is the optimal critic?** Set $I_{UBA}$ to achieve equality when $q(x \mid y) = p(x \mid y)$ (recovering IBA's tightness condition):
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 q(x \mid y) &= \frac{p(x)}{Z(y)} e^{f(x,y)} = p(x \mid y) = \frac{p(x,y)}{p(y)} \\
 e^{f(x,y)} &= \frac{p(x,y)}{p(x)} \cdot \frac{Z(y)}{p(y)} = p(y \mid x) \cdot \frac{Z(y)}{p(y)} \\
 f^*(x,y) &= \log p(y \mid x) + \log \frac{Z(y)}{p(y)}
-\end{aligned}$$
+\end{aligned}
+$$
 
-$$\boxed{f^*(x,y) = \log p(y \mid x) + c(y)}$$
+$$
+\boxed{f^*(x,y) = \log p(y \mid x) + c(y)}
+$$
 
 where $c(y) = \log \frac{Z(y)}{p(y)}$ is a function of $y$ alone.
 
@@ -190,16 +234,22 @@ The strategy: use Jensen's inequality to move it outside the log. Since $\log$ i
 
 **Step 1.** Apply Jensen to the second term of $I_{UBA}$:
 
-$$\mathbb{E}_{p(y)}\left[\log \mathbb{E}_{p(x)}[e^{f(x,y)}]\right] \leq \log \mathbb{E}_{p(y)}\left[\mathbb{E}_{p(x)}[e^{f(x,y)}]\right]$$
+$$
+\mathbb{E}_{p(y)}\left[\log \mathbb{E}_{p(x)}[e^{f(x,y)}]\right] \leq \log \mathbb{E}_{p(y)}\left[\mathbb{E}_{p(x)}[e^{f(x,y)}]\right]
+$$
 
 **Step 2.** Flip the inequality direction (since we subtract this term):
 
-$$I_{UBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}[\log Z(y)]
-\geq \mathbb{E}_{p(x,y)}[f] - \log \mathbb{E}_{p(y)}[Z(y)]$$
+$$
+I_{UBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}[\log Z(y)]
+\geq \mathbb{E}_{p(x,y)}[f] - \log \mathbb{E}_{p(y)}[Z(y)]
+$$
 
 **Step 3.** Merge into a joint expectation: $\mathbb{E}_{p(y)}[\mathbb{E}_{p(x)}[e^f]] = \mathbb{E}_{p(x)p(y)}[e^f]$:
 
-$$\boxed{I_{DV} = \mathbb{E}_{p(x,y)}[f(x,y)] - \log \mathbb{E}_{p(x)p(y)}[e^{f(x,y)}]} \tag{4}$$
+$$
+\boxed{I_{DV} = \mathbb{E}_{p(x,y)}[f(x,y)] - \log \mathbb{E}_{p(x)p(y)}[e^{f(x,y)}]} \tag{4}
+$$
 
 This is the Donsker-Varadhan bound used by MINE. Because of Jensen, $I_{DV} \leq I_{UBA} \leq I$. On paper, it is a valid lower bound.
 
@@ -219,20 +269,26 @@ The strategy: use a different inequality. For all $x, a > 0$, we have $\log x \l
 
 **Step 1.** Let $x = \mathbb{E}_{p(x)}[e^{f(x,y)}] = Z(y)$ and $a = a(y)$ (a positive function to be learned):
 
-$$\log Z(y) \leq \frac{Z(y)}{a(y)} + \log a(y) - 1$$
+$$
+\log Z(y) \leq \frac{Z(y)}{a(y)} + \log a(y) - 1
+$$
 
 Equality holds when $a(y) = Z(y)$.
 
 **Step 2.** Substitute into $I_{UBA}$:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 I_{UBA} &= \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}[\log Z(y)] \\
 &\geq \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}\left[\frac{Z(y)}{a(y)} + \log a(y) - 1\right]
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Step 3.** Expand $Z(y) = \mathbb{E}_{p(x)}[e^{f(x,y)}]$:
 
-$$\boxed{I_{TUBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}\left[\frac{\mathbb{E}_{p(x)}[e^{f(x,y)}]}{a(y)} + \log a(y) - 1\right]} \tag{5}$$
+$$
+\boxed{I_{TUBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}\left[\frac{\mathbb{E}_{p(x)}[e^{f(x,y)}]}{a(y)} + \log a(y) - 1\right]} \tag{5}
+$$
 
 There is no more $\log \mathbb{E}[\cdot]$. All expectations are on the outside and can be estimated unbiasedly with Monte Carlo. The cost is needing to learn an additional network $a(y)$.
 
@@ -242,25 +298,37 @@ The strategy: do not want to learn $a(y)$? Set it to a constant.
 
 **Step 1.** Set $a(y) = e$ (chosen to simplify the algebra):
 
-$$I_{TUBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}\left[\frac{\mathbb{E}_{p(x)}[e^{f}]}{e} + \log e - 1\right]$$
+$$
+I_{TUBA} = \mathbb{E}_{p(x,y)}[f] - \mathbb{E}_{p(y)}\left[\frac{\mathbb{E}_{p(x)}[e^{f}]}{e} + \log e - 1\right]
+$$
 
 $\log e - 1 = 0$, which drops out:
 
-$$= \mathbb{E}_{p(x,y)}[f] - \frac{1}{e} \mathbb{E}_{p(y)}\left[\mathbb{E}_{p(x)}[e^{f}]\right]$$
+$$
+= \mathbb{E}_{p(x,y)}[f] - \frac{1}{e} \mathbb{E}_{p(y)}\left[\mathbb{E}_{p(x)}[e^{f}]\right]
+$$
 
 **Step 2.** Merge the double expectation $\mathbb{E}_{p(y)}\mathbb{E}_{p(x)} = \mathbb{E}_{p(x)p(y)}$:
 
-$$\boxed{I_{NWJ} = \mathbb{E}_{p(x,y)}[f(x,y)] - e^{-1}\, \mathbb{E}_{p(x)p(y)}[e^{f(x,y)}]} \tag{6}$$
+$$
+\boxed{I_{NWJ} = \mathbb{E}_{p(x,y)}[f(x,y)] - e^{-1}\, \mathbb{E}_{p(x)p(y)}[e^{f(x,y)}]} \tag{6}
+$$
 
 Also known as the f-GAN bound or MINE-f. No $a(y)$ is needed, but the critic must self-normalize.
 
 **Optimal critic.** Via variational calculus:
 
-$$\frac{\delta I_{NWJ}}{\delta f} = p(x,y) - e^{-1} p(x) p(y) e^{f(x,y)} = 0$$
+$$
+\frac{\delta I_{NWJ}}{\delta f} = p(x,y) - e^{-1} p(x) p(y) e^{f(x,y)} = 0
+$$
 
-$$e^{f^*(x,y)} = e \cdot \frac{p(x,y)}{p(x)p(y)} = e \cdot \frac{p(x \mid y)}{p(x)}$$
+$$
+e^{f^*(x,y)} = e \cdot \frac{p(x,y)}{p(x)p(y)} = e \cdot \frac{p(x \mid y)}{p(x)}
+$$
 
-$$\boxed{f^*(x,y) = 1 + \log \frac{p(x \mid y)}{p(x)}} \tag{7}$$
+$$
+\boxed{f^*(x,y) = 1 + \log \frac{p(x \mid y)}{p(x)}} \tag{7}
+$$
 
 ### 3.6 $I_{JS}$: Training a Critic with JS Divergence (Practical Variant)
 
@@ -270,7 +338,9 @@ First, train the critic using Jensen-Shannon divergence (as in GANs / Hjelm et a
 
 Second, evaluate MI by plugging $V$ into the INWJ formula:
 
-$$I_{JS} = 1 + \mathbb{E}_{p(x,y)}[V(x,y)] - \mathbb{E}_{p(x)p(y)}[e^{V(x,y)}]$$
+$$
+I_{JS} = 1 + \mathbb{E}_{p(x,y)}[V(x,y)] - \mathbb{E}_{p(x)p(y)}[e^{V(x,y)}]
+$$
 
 The key point: training and evaluation use different objectives — JS for training (stable), INWJ for evaluation (a valid MI lower bound). The paper's dSprites experiments actually use $I_{JS}$.
 
@@ -303,62 +373,84 @@ Since $x_{2:K}$ is independent of $(x_1, y)$, we can "absorb" the extra negative
 
 Step A: wrap an expectation around it, which does not change the value.
 
-$$I(X_1; Y) = \mathbb{E}_{r^{K-1}(x_{2:K})}[I(X_1; Y)]$$
+$$
+I(X_1; Y) = \mathbb{E}_{r^{K-1}(x_{2:K})}[I(X_1; Y)]
+$$
 
 $I(X_1; Y)$ has nothing to do with $x_{2:K}$. Taking the expectation over $x_{2:K}$, the term $I(X_1; Y)$ is a constant pulled outside — the expectation of a constant is the constant. It is like your exam score depending only on how much you studied, not on what you ate for dinner; the average of your exam score over all possible dinners is still your exam score.
 
 Step B: "swallow" the expectation into the mutual information.
 
-$$\mathbb{E}_{r^{K-1}(x_{2:K})}[I(X_1; Y)] = I(X_1, X_{2:K}; Y)$$
+$$
+\mathbb{E}_{r^{K-1}(x_{2:K})}[I(X_1; Y)] = I(X_1, X_{2:K}; Y)
+$$
 
 By the chain rule of mutual information:
 
-$$I(X_1, X_{2:K}; Y) = I(X_1; Y) + \underbrace{I(X_{2:K}; Y \mid X_1)}_{=0}$$
+$$
+I(X_1, X_{2:K}; Y) = I(X_1; Y) + \underbrace{I(X_{2:K}; Y \mid X_1)}_{=0}
+$$
 
 Since $X_{2:K}$ is completely independent of $(X_1, Y)$, knowing $X_1$ does not create any information overlap between $X_{2:K}$ and $Y$. The conditional mutual information is zero. Therefore:
 
-$$\boxed{I(X_1; Y) = I(X_1, X_{2:K}; Y)} \tag{8}$$
+$$
+\boxed{I(X_1; Y) = I(X_1, X_{2:K}; Y)} \tag{8}
+$$
 
 In one sentence: the extra negative samples are independent of $(X_1, Y)$, and through the chain rule they can be absorbed into $I(X_1, X_{2:K}; Y)$ without changing the true MI. The benefit is enormous — we can now apply INWJ to $I(X_1, X_{2:K}; Y)$ and let these "extra samples" help estimate the partition function.
 
 **Step 1.** Construct a critic that considers all $K$ samples:
 
-$$f(x_{1:K}, y) = 1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})} \tag{9}$$
+$$
+f(x_{1:K}, y) = 1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})} \tag{9}
+$$
 
 where $a(y; x_{1:K})$ is a substitute for the partition function estimated from $K$ samples.
 
 **Step 2.** Substitute (9) into the INWJ formula $I_{NWJ} = \mathbb{E}_{p}[f] - e^{-1}\mathbb{E}_{p \otimes p}[e^{f}]$:
 
-$$I \geq \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})}\right]
-- e^{-1}\, \mathbb{E}_{p(x_{1:K})p(y)}\left[e^{1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})}}\right]$$
+$$
+I \geq \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})}\right]
+- e^{-1}\, \mathbb{E}_{p(x_{1:K})p(y)}\left[e^{1 + \log \frac{e^{f(x_1, y)}}{a(y; x_{1:K})}}\right]
+$$
 
 **Step 3.** Simplify the second term. Note $e^{1 + \log \frac{e^f}{a}} = e \cdot \frac{e^f}{a}$:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \text{Second term} &= e^{-1} \cdot \mathbb{E}_{p(x_{1:K})p(y)}\left[e \cdot \frac{e^{f(x_1, y)}}{a(y; x_{1:K})}\right] \\
 &= \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{e^{f(x_1, y)}}{a(y; x_{1:K})}\right]
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Step 4.** Choose $a(y; x_{1:K})$ to be the sample mean:
 
-$$\boxed{a(y; x_{1:K}) = m(y; x_{1:K}) = \frac{1}{K}\sum_{i=1}^{K} e^{f(x_i, y)}} \tag{10}$$
+$$
+\boxed{a(y; x_{1:K}) = m(y; x_{1:K}) = \frac{1}{K}\sum_{i=1}^{K} e^{f(x_i, y)}} \tag{10}
+$$
 
 Now the second term has a crucial property — by symmetry, every $x_i$ in the batch has equal status:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{e^{f(x_1, y)}}{m(y; x_{1:K})}\right]
 &= \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{\frac{1}{K}\sum_{i=1}^K e^{f(x_i, y)}}{m(y; x_{1:K})}\right] \\
 &= \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{m(y; x_{1:K})}{m(y; x_{1:K})}\right] \\
 &= 1
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Step 5.** The second term is exactly 1, canceling with the $+1$ from the first term:
 
-$$I \geq \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[\log \frac{e^{f(x_1, y)}}{\frac{1}{K}\sum_{i=1}^{K} e^{f(x_i, y)}}\right]$$
+$$
+I \geq \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[\log \frac{e^{f(x_1, y)}}{\frac{1}{K}\sum_{i=1}^{K} e^{f(x_i, y)}}\right]
+$$
 
 **Step 6.** Extend to the full batch. For a batch $\{(x_i, y_i)\}_{i=1}^{K}$, each pair takes a turn as the positive:
 
-$$\boxed{I_{NCE} = \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^{K} \log \frac{e^{f(x_i, y_i)}}{\frac{1}{K}\sum_{j=1}^{K} e^{f(x_i, y_j)}}\right]} \tag{12}$$
+$$
+\boxed{I_{NCE} = \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^{K} \log \frac{e^{f(x_i, y_i)}}{\frac{1}{K}\sum_{j=1}^{K} e^{f(x_i, y_j)}}\right]} \tag{12}
+$$
 
 This is InfoNCE — the core loss function of [CPC](/blog/contrastive-predictive-coding) and SimCLR.
 
@@ -383,14 +475,18 @@ Can we interpolate continuously between the two?
 
 **Step 1.** The key to InfoNCE's derivation was choosing $a(y; x_{1:K}) = m(y; x_{1:K})$ (the sample mean). What if we choose a convex combination of $m$ and some baseline $q(y)$?
 
-$$a_\alpha(y; x_{1:K}) = \alpha \cdot m(y; x_{1:K}) + (1 - \alpha) \cdot q(y), \quad \alpha \in [0, 1]$$
+$$
+a_\alpha(y; x_{1:K}) = \alpha \cdot m(y; x_{1:K}) + (1 - \alpha) \cdot q(y), \quad \alpha \in [0, 1]
+$$
 
 where $q(y)$ is any distribution. In practice it can be a uniform distribution, or a neural network can learn $q(y)$ as in $I_{JS}$.
 
 **Step 2.** Substitute $a_\alpha$ into equation (9), then into INWJ:
 
-$$I_\alpha = 1 + \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[\log \frac{e^{f(x_1,y)}}{\alpha \cdot m + (1-\alpha) \cdot q(y)}\right]
-- \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{e^{f(x_1,y)}}{\alpha \cdot m + (1-\alpha) \cdot q(y)}\right] \tag{13}$$
+$$
+I_\alpha = 1 + \mathbb{E}_{p(x_{1:K})p(y \mid x_1)}\left[\log \frac{e^{f(x_1,y)}}{\alpha \cdot m + (1-\alpha) \cdot q(y)}\right]
+- \mathbb{E}_{p(x_{1:K})p(y)}\left[\frac{e^{f(x_1,y)}}{\alpha \cdot m + (1-\alpha) \cdot q(y)}\right] \tag{13}
+$$
 
 **Step 3.** Boundary cases:
 
@@ -398,7 +494,9 @@ $\alpha=0$ gives $a_0 = q(y)$, reverting to INWJ. $\alpha=1$ gives $a_1 = m(y)$,
 
 ### 6.3 Upper Bound
 
-$$\boxed{I_\alpha \leq \log \frac{K}{\alpha}}$$
+$$
+\boxed{I_\alpha \leq \log \frac{K}{\alpha}}
+$$
 
 | $\alpha$ | Equivalent Bound | Upper Bound |
 |---|---|---|
@@ -416,35 +514,47 @@ In representation learning, $Y$ is the learned representation, and the encoder $
 
 Directly substitute the optimal critic form $f(x,y) = \log p(y \mid x)$ into InfoNCE (recall $c(y)$ cancels in the softmax):
 
-$$\boxed{I \geq \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^{K} \log \frac{p(y_i \mid x_i)}{\frac{1}{K}\sum_{j=1}^{K} p(y_i \mid x_j)}\right]} \tag{14}$$
+$$
+\boxed{I \geq \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^{K} \log \frac{p(y_i \mid x_i)}{\frac{1}{K}\sum_{j=1}^{K} p(y_i \mid x_j)}\right]} \tag{14}
+$$
 
 ### 7.2 Leave-One-Out Upper Bound
 
 **Step 1.** Return to the VAE-style upper bound from Section 2.1:
 
-$$I \leq \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right]$$
+$$
+I \leq \mathbb{E}_{p(x)}\left[D_{KL}(p(y \mid x) \parallel q(y))\right]
+$$
 
 **Step 2.** Approximate $q(y)$ using the other samples in the batch. Given a batch $\{(x_i, y_i)\}_{i=1}^K$, estimate $q(y)$ for the $i$-th sample using the remaining $K-1$:
 
-$$q_i(y) = \frac{1}{K-1} \sum_{j \neq i} p(y \mid x_j)$$
+$$
+q_i(y) = \frac{1}{K-1} \sum_{j \neq i} p(y \mid x_j)
+$$
 
 **Step 3.**
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \mathbb{E}_{p(x_i)}[D_{KL}(p(y \mid x_i) \parallel q_i(y))]
 &= \mathbb{E}_{p(x_i)p(y \mid x_i)}\left[\log \frac{p(y \mid x_i)}{q_i(y)}\right] \\
 &= \mathbb{E}\left[\log \frac{p(y_i \mid x_i)}{\frac{1}{K-1}\sum_{j \neq i} p(y_i \mid x_j)}\right]
-\end{aligned}$$
+\end{aligned}
+$$
 
 Averaging over the batch:
 
-$$\boxed{I \leq \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^K \log \frac{p(y_i \mid x_i)}{\frac{1}{K-1}\sum_{j \neq i} p(y_i \mid x_j)}\right]} \tag{17}$$
+$$
+\boxed{I \leq \mathbb{E}\left[\frac{1}{K}\sum_{i=1}^K \log \frac{p(y_i \mid x_i)}{\frac{1}{K-1}\sum_{j \neq i} p(y_i \mid x_j)}\right]} \tag{17}
+$$
 
 ### 7.3 The Sandwich Bound
 
 Compare the lower bound (14) and upper bound (17): the only difference is whether the denominator includes the sample itself.
 
-$$\underbrace{\frac{p(y_i \mid x_i)}{\frac{1}{K}\sum_{j} p(y_i \mid x_j)}}_{\text{Lower bound: denominator includes self, smaller}} \;\leq\; \text{True MI} \;\leq\; \underbrace{\frac{p(y_i \mid x_i)}{\frac{1}{K-1}\sum_{j \neq i} p(y_i \mid x_j)}}_{\text{Upper bound: denominator excludes self, larger}}$$
+$$
+\underbrace{\frac{p(y_i \mid x_i)}{\frac{1}{K}\sum_{j} p(y_i \mid x_j)}}_{\text{Lower bound: denominator includes self, smaller}} \;\leq\; \text{True MI} \;\leq\; \underbrace{\frac{p(y_i \mid x_i)}{\frac{1}{K-1}\sum_{j \neq i} p(y_i \mid x_j)}}_{\text{Upper bound: denominator excludes self, larger}}
+$$
 
 Without any additional variational distributions or critic networks, the MI is sandwiched between an upper and lower bound.
 
@@ -452,15 +562,21 @@ Without any additional variational distributions or critic networks, the MI is s
 
 When $p(y \mid x)$ is known, INWJ's critic does not need to be learned from scratch. Recall INWJ's optimal critic $f^*(x,y) = 1 + \log \frac{p(x \mid y)}{p(x)}$. Using Bayes' rule $p(x \mid y) = \frac{p(y \mid x) p(x)}{p(y)}$:
 
-$$f^*(x,y) = 1 + \log \frac{p(y \mid x)}{p(y)}$$
+$$
+f^*(x,y) = 1 + \log \frac{p(y \mid x)}{p(y)}
+$$
 
 But we do not know $p(y)$. Introduce a variational distribution $q(y)$ to replace it:
 
-$$\boxed{f(x,y) = 1 + \log \frac{p(y \mid x)}{q(y)}}$$
+$$
+\boxed{f(x,y) = 1 + \log \frac{p(y \mid x)}{q(y)}}
+$$
 
 The critic is now reparameterized to require only learning $q(y)$ (typically a small network), rather than learning a full $(x,y) \to \mathbb{R}$ critic from scratch. Substituting this form into INWJ:
 
-$$I \geq \mathbb{E}_{p(x,y)}\left[1 + \log \frac{p(y \mid x)}{q(y)}\right] - e^{-1}\, \mathbb{E}_{p(x)p(y)}\left[e \cdot \frac{p(y \mid x)}{q(y)}\right]$$
+$$
+I \geq \mathbb{E}_{p(x,y)}\left[1 + \log \frac{p(y \mid x)}{q(y)}\right] - e^{-1}\, \mathbb{E}_{p(x)p(y)}\left[e \cdot \frac{p(y \mid x)}{q(y)}\right]
+$$
 
 After simplification, this yields a bound that only needs $q(y)$. The form is structurally symmetric with the VAE-style upper bound $I \leq \mathbb{E}_{p(x)}[D_{KL}(p(y \mid x) \parallel q(y))]$: one evaluates KL between $p(y \mid x)$ and $q(y)$, the other evaluates cross-entropy.
 
@@ -468,7 +584,9 @@ After simplification, this yields a bound that only needs $q(y)$. The form is st
 
 The paper further shows how to use the sandwich bound to constrain the total correlation of a representation:
 
-$$TC(Y) = \sum_{i=1}^d I(X; Y_i) - I(X; Y)$$
+$$
+TC(Y) = \sum_{i=1}^d I(X; Y_i) - I(X; Y)
+$$
 
 where $Y = (Y_1, \ldots, Y_d)$ is a $d$-dimensional representation. $TC(Y)$ measures the statistical dependence among the dimensions of the representation — the smaller $TC(Y)$ is, the more disentangled the representation.
 
