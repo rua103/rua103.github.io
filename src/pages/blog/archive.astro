@@ -1,0 +1,201 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+import { FormattedDate, Icon } from 'astro-pure/user'
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import SidebarLayout from '@/components/mio/SidebarLayout.astro'
+
+export const prerender = true
+
+type Post = CollectionEntry<'blog'>
+
+const allPosts = sortMDByDate(await getBlogCollection())
+
+// Group posts by series
+const seriesMap = new Map<string, Post[]>()
+const standalone: Post[] = []
+
+for (const post of allPosts) {
+  if (post.data.series) {
+    const existing = seriesMap.get(post.data.series) ?? []
+    existing.push(post)
+    seriesMap.set(post.data.series, existing)
+  } else {
+    standalone.push(post)
+  }
+}
+
+// Sort series posts by seriesOrder
+for (const [name, posts] of seriesMap) {
+  posts.sort(
+    (a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0)
+  )
+}
+
+// Convert series slug to display name
+function seriesDisplayName(slug: string): string {
+  return slug
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
+const meta = {
+  title: 'Archive',
+  description: 'Browse all posts by topic and series.'
+}
+---
+
+<PageLayout {meta} sidebar>
+  <SidebarLayout>
+    <div id='content-header' class='animate mb-6'>
+      <h1 class='text-3xl font-bold'>Archive</h1>
+      <p class='text-muted-foreground mt-2'>
+        All posts, organized by topic. For the latest, see the <a
+          href='/blog'
+          class='highlight font-medium'>main feed</a>.
+      </p>
+    </div>
+
+    <section aria-label='Posts by series' class='animate' id='content'>
+      {
+        Array.from(seriesMap.entries()).map(([slug, posts]) => (
+          <div class='archive-group'>
+            <h2 class='archive-group-title'>
+              {seriesDisplayName(slug)}
+              <span class='archive-group-count'>{posts.length} posts</span>
+            </h2>
+            <ul class='archive-list'>
+              {posts.map((post) => (
+                <li>
+                  <a
+                    href={`/blog/${post.id}`}
+                    class='archive-link'
+                    data-astro-prefetch>
+                    <span class='archive-order'>
+                      Part {post.data.seriesOrder}
+                    </span>
+                    <span class='archive-title'>{post.data.title}</span>
+                    <FormattedDate
+                      class='archive-date'
+                      date={post.data.publishDate} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+
+      {
+        standalone.length > 0 && (
+          <div class='archive-group'>
+            <h2 class='archive-group-title'>
+              Other Posts
+              <span class='archive-group-count'>{standalone.length} posts</span>
+            </h2>
+            <ul class='archive-list'>
+              {standalone.map((post) => (
+                <li>
+                  <a
+                    href={`/blog/${post.id}`}
+                    class='archive-link'
+                    data-astro-prefetch>
+                    <span class='archive-title'>{post.data.title}</span>
+                    <FormattedDate
+                      class='archive-date'
+                      date={post.data.publishDate} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </section>
+  </SidebarLayout>
+</PageLayout>
+
+<style>
+  .archive-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .archive-group-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .archive-group-count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .archive-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .archive-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background 0.12s ease;
+  }
+
+  .archive-link:hover {
+    background: hsl(var(--primary) / 0.06);
+  }
+
+  .archive-order {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    min-width: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .archive-title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    flex: 1;
+  }
+
+  .archive-link:hover .archive-title {
+    color: hsl(var(--primary));
+  }
+
+  .archive-date {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    .archive-link {
+      flex-wrap: wrap;
+    }
+
+    .archive-order {
+      min-width: auto;
+    }
+  }
+</style>

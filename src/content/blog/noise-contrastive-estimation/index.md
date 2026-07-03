@@ -8,6 +8,8 @@ tags:
   - language-modeling
   - estimation-theory
   - negative-sampling
+series: contrastive-learning
+seriesOrder: 1
 draft: false
 ---
 

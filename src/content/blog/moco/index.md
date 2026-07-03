@@ -10,6 +10,8 @@ tags:
   - momentum-encoder
   - dynamic-dictionary
   - cvpr2020
+series: contrastive-learning
+seriesOrder: 5
 ---
 
 > MoCo frames contrastive learning as a dictionary look-up problem -- a query searches for its matching key in the dictionary while pushing away all other keys. It uses a queue to scale the dictionary to 65,536 entries and a momentum encoder to ensure the features across all keys are highly consistent. This was the first method to let unsupervised pretraining surpass supervised ImageNet pretraining across the board.

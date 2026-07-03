@@ -10,6 +10,8 @@ tags:
   - imagenet
   - data-augmentation
   - projection-head
+series: contrastive-learning
+seriesOrder: 4
 draft: false
 comment: true
 ---

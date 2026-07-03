@@ -210,6 +210,44 @@ article #content > p:first-of-type::first-letter {
   color: hsl(var(--ring));
 }
 
+/* sub-menu (e.g. Archive under Writing) */
+.ns-nav-group .ns-sub {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top: none;
+  overflow: hidden;
+  transition:
+    max-height 0.35s cubic-bezier(.2,.7,.3,1),
+    opacity 0.25s ease,
+    padding 0.35s cubic-bezier(.2,.7,.3,1);
+}
+
+.ns-nav-group:hover .ns-sub {
+  max-height: 2.75rem;
+  opacity: 1;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.ns-nav-group .ns-sub::before {
+  display: none;
+}
+
+.ns-nav-group .ns-sub:hover {
+  padding-left: 0; /* indent stays, no extra shift */
+}
+
+.ns-nav-group .ns-sub .trk {
+  font-size: 0.95rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.ns-nav-group .ns-sub:hover .trk {
+  color: hsl(var(--ring));
+}
+
 /* now-playing */
 .ns-player {
   display: block;

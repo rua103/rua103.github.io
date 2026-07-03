@@ -1,0 +1,171 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+  posts: CollectionEntry<'blog'>[]
+}
+
+const { post, posts } = Astro.props
+const { series, seriesOrder } = post.data
+
+if (!series || seriesOrder === undefined) {
+  // Not part of a series — render nothing
+  return
+}
+
+// Filter posts in the same series, sorted by seriesOrder
+const seriesPosts = posts
+  .filter(
+    (p) =>
+      p.data.series === series && p.data.seriesOrder !== undefined
+  )
+  .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0))
+
+if (seriesPosts.length < 2) {
+  // Only one post in the series — no navigation needed
+  return
+}
+
+const currentIndex = seriesPosts.findIndex((p) => p.id === post.id)
+if (currentIndex === -1) return
+
+const total = seriesPosts.length
+const position = currentIndex + 1
+
+const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null
+const nextPost =
+  currentIndex < total - 1 ? seriesPosts[currentIndex + 1] : null
+
+// Convert series slug to display name
+const seriesName = series
+  .split('-')
+  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+  .join(' ')
+---
+
+<div class='series-nav'>
+  <div class='series-nav-header'>
+    <span class='series-nav-label'>Series: {seriesName}</span>
+    <span class='series-nav-position'>Part {position} of {total}</span>
+  </div>
+  <div class='series-nav-links'>
+    {prevPost ? (
+      <a href={`/blog/${prevPost.id}`} class='series-nav-link prev' data-astro-prefetch>
+        <span class='series-nav-direction'>Previous</span>
+        <span class='series-nav-title'>{prevPost.data.title}</span>
+      </a>
+    ) : (
+      <span class='series-nav-link prev disabled'>
+        <span class='series-nav-direction'>Previous</span>
+        <span class='series-nav-title'>First in series</span>
+      </span>
+    )}
+    {nextPost ? (
+      <a href={`/blog/${nextPost.id}`} class='series-nav-link next' data-astro-prefetch>
+        <span class='series-nav-direction'>Next</span>
+        <span class='series-nav-title'>{nextPost.data.title}</span>
+      </a>
+    ) : (
+      <span class='series-nav-link next disabled'>
+        <span class='series-nav-direction'>Next</span>
+        <span class='series-nav-title'>Last in series</span>
+      </span>
+    )}
+  </div>
+</div>
+
+<style>
+  .series-nav {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    background: hsl(var(--muted));
+    padding: 1rem 1.25rem;
+  }
+
+  .series-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .series-nav-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: hsl(var(--primary));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .series-nav-position {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .series-nav-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .series-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+
+  .series-nav-link:not(.disabled) {
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .series-nav-link:not(.disabled):hover {
+    background: hsl(var(--primary) / 0.06);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  .series-nav-link.disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .series-nav-link.next {
+    text-align: right;
+  }
+
+  .series-nav-direction {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .series-nav-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    line-height: 1.35;
+  }
+
+  .series-nav-link:not(.disabled):hover .series-nav-title {
+    color: hsl(var(--primary));
+  }
+
+  @media (max-width: 480px) {
+    .series-nav-links {
+      grid-template-columns: 1fr;
+    }
+
+    .series-nav-link.next {
+      text-align: left;
+    }
+  }
+</style>

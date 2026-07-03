@@ -9,6 +9,8 @@ tags:
   - infonce
   - predictive-coding
   - mutual-information
+series: contrastive-learning
+seriesOrder: 2
 draft: false
 ---
 

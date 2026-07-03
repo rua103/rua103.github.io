@@ -8,6 +8,7 @@ import { MediumZoom } from 'astro-pure/advanced'
 import { ArticleBottom } from 'astro-pure/components/pages'
 import config from 'virtual:config'
 import Copyright from '@/components/Copyright.astro'
+import SeriesNav from '@/components/SeriesNav.astro'
 import PageLayout from '@/layouts/BaseLayout.astro'
 import { Comment } from '@/components/giscus'
 
@@ -19,11 +20,13 @@ interface Props {
 }
 
 const {
-  post: { id, data },
+  post,
   posts,
   headings,
   remarkPluginFrontmatter
 } = Astro.props
+
+const { id, data } = post
 
 const {
   description,
@@ -92,6 +95,7 @@ const minutesRead = remarkPluginFrontmatter.minutesRead as number | undefined
       <!-- Bottom -->
       <div class='mt-10 space-y-6'>
         <Copyright {data} />
+        <SeriesNav {post} {posts} />
         <ArticleBottom collections={posts} {id} />
         {!isDraft && enableComment && (
           <>

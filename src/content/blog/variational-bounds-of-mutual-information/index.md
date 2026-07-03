@@ -9,6 +9,8 @@ tags:
   - contrastive-learning
   - representation-learning
   - self-supervised-learning
+series: contrastive-learning
+seriesOrder: 3
 draft: false
 ---
 

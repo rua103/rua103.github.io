@@ -10,6 +10,8 @@ tags:
   - stop-gradient
   - momentum-encoder
   - no-negative-samples
+series: contrastive-learning
+seriesOrder: 6
 ---
 
 # BYOL: Bootstrap Your Own Latent
