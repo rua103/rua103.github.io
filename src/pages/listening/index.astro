@@ -61,14 +61,9 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
   function renderArtists(data: any) {
     const grid = document.getElementById('lm-artists')!
     const artists = data.topartists?.artist || []
-    grid.innerHTML = artists.slice(0, 8).map((a: any, i: number) => {
-      const src = image(a.image, 'large') || image(a.image, 'medium')
+    grid.innerHTML = artists.slice(0, 8).map((a: any, _i: number) => {
       return `
         <a href="${a.url}" target='_blank' class='lm-artist-card'>
-          <div class='lm-artist-img-wrap'>
-            ${src ? `<img src="${src}" alt='' class='lm-artist-img' loading='lazy' onerror="this.remove()" />` : `<span class='lm-artist-fallback'>${a.name.charAt(0)}</span>`}
-            <span class='lm-artist-rank'>${i + 1}</span>
-          </div>
           <span class='lm-artist-name'>${a.name}</span>
           <span class='lm-artist-plays'>${a.playcount} plays</span>
         </a>
@@ -76,17 +71,17 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
     }).join('')
   }
 
-  function renderTracks(el: HTMLElement, tracks: any[], showArtist = true, showDate = false) {
+  function renderTracks(el: HTMLElement, tracks: any[], showArtist = true, showDate = false, showImage = true) {
     el.innerHTML = tracks.map((t: any, i: number) => {
       const track = t.name
       const artist = t.artist?.['#text'] || t.artist?.name || ''
       const plays = t.playcount ? ` · ${t.playcount} plays` : ''
       const date = t.date?.['#text'] ? ` · ${t.date['#text']}` : ''
-      const src = image(t.image, 'small') || image(t.image, 'medium') || ''
+      const src = showImage ? (image(t.image, 'small') || image(t.image, 'medium') || '') : ''
       return `
         <li class='lm-track-item'>
           <span class='lm-track-num'>${String(i + 1).padStart(2, '0')}</span>
-          <span class='lm-track-thumb'>${src ? `<img src='${src}' alt='' class='lm-track-img' loading='lazy' onerror="this.remove()" />` : NOTE_SVG}</span>
+          ${showImage ? `<span class='lm-track-thumb'>${src ? `<img src='${src}' alt='' class='lm-track-img' onerror="this.style.display='none';this.nextElementSibling.style.display=''" /><span class='lm-track-fallback' style='display:none'>${NOTE_SVG}</span>` : `<span class='lm-track-fallback'>${NOTE_SVG}</span>`}</span>` : ''}
           <div class='lm-track-info'>
             <span class='lm-track-name'>${track}</span>
             ${showArtist ? `<span class='lm-track-artist'>${artist}</span>` : ''}
@@ -105,7 +100,7 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
         fetchLF('user.getrecenttracks', '&limit=15')
       ])
       renderArtists(topArtists)
-      renderTracks(document.getElementById('lm-tracks')!, topTracks.toptracks?.track || [], true)
+      renderTracks(document.getElementById('lm-tracks')!, topTracks.toptracks?.track || [], true, false, false)
       renderTracks(document.getElementById('lm-recent')!, (recent.recenttracks?.track || []).slice(0, 15), true)
     } catch(e) {
       document.getElementById('lm-artists')!.innerHTML = '<p class=\'lm-empty\'>Could not load listening data. Try again later.</p>'
@@ -203,23 +198,6 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
     transition: background 0.25s ease;
   }
   :global(.lm-artist-card:hover) { background: hsl(var(--muted) / 0.5); }
-  :global(.lm-artist-img-wrap) {
-    position: relative;
-    width: 5rem;
-    height: 5rem;
-    margin-bottom: 0.6rem;
-    background: hsl(var(--muted) / 0.6);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  :global(.lm-artist-fallback) {
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 2rem;
-    color: hsl(var(--muted-foreground) / 0.5);
-    font-weight: 600;
-  }
   :global(.lm-track-thumb) {
     width: 2rem;
     height: 2rem;
@@ -240,20 +218,10 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
     z-index: 1;
   }
   :global(.lm-artist-rank) {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 1.4rem;
-    height: 1.4rem;
-    border-radius: 50%;
-    background: hsl(var(--primary));
-    color: hsl(var(--background));
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 0.6rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
+    font-size: 1.5rem;
+    color: hsl(var(--primary) / 0.6);
+    margin-bottom: 0.3rem;
   }
   :global(.lm-artist-name) {
     font-family: 'Newsreader', Georgia, serif !important;
@@ -293,6 +261,14 @@ import SidebarLayout from '@/components/mio/SidebarLayout.astro'
     object-fit: cover;
     flex-shrink: 0;
     background: hsl(var(--muted) / 0.5);
+  }
+  :global(.lm-track-fallback) {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
   :global(.lm-track-info) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   :global(.lm-track-name) {
