@@ -334,7 +334,7 @@ The line `delta + gamma * lam * gae` is a direct translation of $A_t = \delta_t 
 $$\boxed{G_t^{(n)} = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n V(s_{t+n})}
 \;\xrightarrow{\text{geometric mixture}}\;
 \boxed{G_t^\lambda = \sum_{k=0}^{\infty} (\gamma\lambda)^k r_{t+k}}
-\;\xrightarrow{\S 3.2\ \text{lemma}}\;
+\;\xrightarrow{\text{sec. 3.2 lemma}}\;
 \boxed{G_t^\lambda = V(s_t) + \sum_{k=0}^{\infty} (\gamma\lambda)^k \delta_{t+k}}
 \;\xrightarrow{-V(s_t)}\;
 \boxed{A_t = \sum_{l=0}^{\infty} (\gamma\lambda)^l \delta_{t+l}}
