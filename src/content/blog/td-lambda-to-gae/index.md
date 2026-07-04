@@ -331,15 +331,19 @@ The line `delta + gamma * lam * gae` is a direct translation of $A_t = \delta_t 
 
 ## 5. Derivation Chain Overview
 
-$$\boxed{G_t^{(n)} = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n V(s_{t+n})}
-\;\xrightarrow{\text{geometric mixture}}\;
-\boxed{G_t^\lambda = \sum_{k=0}^{\infty} (\gamma\lambda)^k r_{t+k}}
-\;\xrightarrow{\text{sec. 3.2 lemma}}\;
-\boxed{G_t^\lambda = V(s_t) + \sum_{k=0}^{\infty} (\gamma\lambda)^k \delta_{t+k}}
-\;\xrightarrow{-V(s_t)}\;
-\boxed{A_t = \sum_{l=0}^{\infty} (\gamma\lambda)^l \delta_{t+l}}
-\;\xrightarrow{\text{truncate}}\;
-\boxed{A_t = \delta_t + \gamma\lambda \cdot A_{t+1}}$$
+$$
+\begin{aligned}
+G_t^{(n)} &= \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n V(s_{t+n}) \\
+&\xrightarrow{\text{geometric mixture}} \quad
+G_t^\lambda = \sum_{k=0}^{\infty} (\gamma\lambda)^k r_{t+k} \\
+&\xrightarrow{\text{lemma}} \quad
+G_t^\lambda = V(s_t) + \sum_{k=0}^{\infty} (\gamma\lambda)^k \delta_{t+k} \\
+&\xrightarrow{-V(s_t)} \quad
+A_t = \sum_{l=0}^{\infty} (\gamma\lambda)^l \delta_{t+l} \\
+&\xrightarrow{\text{truncate}} \quad
+A_t = \delta_t + \gamma\lambda \cdot A_{t+1}
+\end{aligned}
+$$
 
 One line, five steps, from n-step return to the PPO implementation.
 
@@ -379,11 +383,13 @@ $$A_t^{\text{GAE}} = \sum_{l=0}^{T-t-1} \lambda^l \, \delta_{t+l}$$
 
 For intermediate tokens, $\delta_t = V(s_{t+1}) - V(s_t)$. For the final token, $\delta_{T-1} = r_{T-1} - V(s_{T-1})$. Working backward from the last token:
 
-$$\begin{aligned}
-A_{T-1} &= r_{T-1} - V(s_{T-1}) \\[2pt]
-A_{T-2} &= \underbrace{V(s_{T-1}) - V(s_{T-2})}_{\delta_{T-2}} \;+\; \lambda \cdot \underbrace{(r_{T-1} - V(s_{T-1}))}_{A_{T-1}} \\[2pt]
+$$
+\begin{aligned}
+A_{T-1} &= r_{T-1} - V(s_{T-1}) \\
+A_{T-2} &= \underbrace{V(s_{T-1}) - V(s_{T-2})}_{\delta_{T-2}} \;+\; \lambda \cdot \underbrace{(r_{T-1} - V(s_{T-1}))}_{A_{T-1}} \\
 A_{T-3} &= \delta_{T-3} + \lambda \cdot A_{T-2}
-\end{aligned}$$
+\end{aligned}
+$$
 
 **Intuition**: the final reward $r_{T-1}$ "seeps" into earlier $\delta_t$ through the differences in $V(s_{T-1})$, then propagates to even earlier tokens with $\lambda^l$ decay. Lambda controls the propagation distance:
 - $\lambda \approx 1$: $r_{T-1}$ is shared almost equally; every token gets credit
