@@ -6,9 +6,9 @@ const publications = [
   {
     title: 'DegEval: Benchmarking and Understanding Visual Degradation in Vision-Language Models',
     authors: 'Jintao Gu, Guoshun Nan, Kaixiang Pan, Hanying Fu, Danchen Guan, Binzhou Qiu, Yandi Liu, Xuan Liu, Ruihan Niu, Fengling Ma, Hang Du, Xiuqiong Li, Sicong Leng',
-    venue: 'ECCV 2026',
+    venue: '',
     url: 'https://openreview.net/forum?id=IVuhnkQQYr',
-    status: 'Under Review'
+    status: 'Under Revision for TIP'
   }
 ]
 ---
@@ -29,9 +29,8 @@ const publications = [
         >
           <div class='flex items-center gap-2 mb-2'>
             <span class='inline-block rounded-full bg-primary/12 text-primary text-xs font-semibold px-2.5 py-0.5'>
-              {pub.venue}
+              {pub.venue || pub.status}
             </span>
-            <span class='text-xs text-muted-foreground'>{pub.status}</span>
           </div>
           <h3 class='font-semibold text-foreground leading-snug'>{pub.title}</h3>
           <p class='text-muted-foreground text-sm mt-2 leading-relaxed'>{pub.authors}</p>
